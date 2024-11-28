@@ -4,3 +4,6 @@ run:
 build:
 	go build -o kusmala .
 	./kusmala
+
+test:
+	go test ./lexer

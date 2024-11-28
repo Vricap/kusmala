@@ -18,6 +18,11 @@ const (
 	COMMA     TokenType = ","
 	SEMICOLON TokenType = ";"
 
+	LPAREN TokenType = "("
+	RPAREN TokenType = ")"
+	RBRACE TokenType = "{"
+	LBRACE TokenType = "}"
+
 	// keyword (reserved word specific to the programming language - non user-defined)
 	FUNGSI TokenType = "FUNGSI"
 	BUAT   TokenType = "BUAT"
@@ -26,4 +31,8 @@ const (
 type Token struct {
 	Type    TokenType
 	Literal string
+}
+
+func NewToken(t TokenType, lit string) Token {
+	return Token{Type: t, Literal: lit}
 }
