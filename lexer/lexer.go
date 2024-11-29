@@ -12,14 +12,14 @@ type lexer struct {
 }
 
 func NewLex(input string) *lexer {
-	return &lexer{
-		input: input,
-	}
+	l := &lexer{input: input}
+	l.readChar() // so that l.char point to first char in input and not just 0
+	return l
 }
 
 func (lex *lexer) NextToken() token.Token {
 	var tok token.Token
-	lex.readChar()
+	lex.skipWhiteSpace()
 
 	switch lex.char {
 	case '=':
@@ -40,8 +40,38 @@ func (lex *lexer) NextToken() token.Token {
 		tok = token.NewToken(token.SEMICOLON, string(lex.char))
 	case 0:
 		tok = token.NewToken(token.EOF, "")
+	default:
+		if isLetter(lex.char) {
+			tok.Literal = lex.readIdentifier()
+			tokType := token.LookUpIdent(tok.Literal) // check wether the word is keyword or just identifier
+			tok = token.NewToken(tokType, tok.Literal)
+			return tok // return early so that readChar at the bottom didn't run again. the pos and peekPos is move up since we already readChar repeatedly inside lex.readIdentifier()
+		} else if isDigit(lex.char) {
+			tok.Literal = lex.readNumber()
+			tok = token.NewToken(token.BILBUL, tok.Literal)
+			return tok
+		} else {
+			tok = token.NewToken(token.ILLEGAL, string(lex.char))
+		}
 	}
+	lex.readChar()
 	return tok
+}
+
+func (lex *lexer) readIdentifier() string {
+	pos := lex.pos
+	for isLetter(lex.char) {
+		lex.readChar()
+	}
+	return lex.input[pos:lex.pos]
+}
+
+func (lex *lexer) readNumber() string {
+	pos := lex.pos
+	for isDigit(lex.char) {
+		lex.readChar()
+	}
+	return lex.input[pos:lex.pos]
 }
 
 func (lex *lexer) readChar() {
@@ -52,4 +82,18 @@ func (lex *lexer) readChar() {
 		lex.pos = lex.peekPos
 		lex.peekPos++
 	}
+}
+
+func (lex *lexer) skipWhiteSpace() {
+	for lex.char == ' ' || lex.char == '\t' || lex.char == '\n' || lex.char == '\r' {
+		lex.readChar()
+	}
+}
+
+func isLetter(char byte) bool {
+	return 'a' <= char && char <= 'z' || 'A' <= char && char <= 'Z' || char == '_'
+}
+
+func isDigit(char byte) bool {
+	return char >= '0' && char <= '9' // '0' corresponds to ASCII value 48. '9' corresponds to ASCII value 57.
 }

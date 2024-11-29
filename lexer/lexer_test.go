@@ -12,16 +12,50 @@ type testStruct struct {
 }
 
 func TestNextToken(t *testing.T) {
-	input := "=+(){},;"
+	input := `buat five = 5;
+buat ten = 10;
+buat add = fungsi(x, y) {
+x + y;
+};
+buat result = add(five, ten);
+`
 
 	test := []testStruct{
+		{token.BUAT, "buat"},
+		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
-		{token.PLUS, "+"},
+		{token.BILBUL, "5"},
+		{token.SEMICOLON, ";"},
+		{token.BUAT, "buat"},
+		{token.IDENT, "ten"},
+		{token.ASSIGN, "="},
+		{token.BILBUL, "10"},
+		{token.SEMICOLON, ";"},
+		{token.BUAT, "buat"},
+		{token.IDENT, "add"},
+		{token.ASSIGN, "="},
+		{token.FUNGSI, "fungsi"},
 		{token.LPAREN, "("},
+		{token.IDENT, "x"},
+		{token.COMMA, ","},
+		{token.IDENT, "y"},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
+		{token.IDENT, "x"},
+		{token.PLUS, "+"},
+		{token.IDENT, "y"},
+		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
+		{token.SEMICOLON, ";"},
+		{token.BUAT, "buat"},
+		{token.IDENT, "result"},
+		{token.ASSIGN, "="},
+		{token.IDENT, "add"},
+		{token.LPAREN, "("},
+		{token.IDENT, "five"},
 		{token.COMMA, ","},
+		{token.IDENT, "ten"},
+		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}

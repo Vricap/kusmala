@@ -7,7 +7,7 @@ const (
 	ILLEGAL TokenType = "ILLEGAL" // token that didn't define in the language
 	EOF     TokenType = "EOF"
 
-	IDENT  TokenType = "IDENT"  // e.g variable name
+	IDENT  TokenType = "IDENT"  // user-defined. e.g variable name
 	BILBUL TokenType = "BILBUL" // bilangan bulan / int
 
 	// operator
@@ -35,4 +35,18 @@ type Token struct {
 
 func NewToken(t TokenType, lit string) Token {
 	return Token{Type: t, Literal: lit}
+}
+
+var keywords = map[string]TokenType{
+	"fungsi": FUNGSI,
+	"buat":   BUAT,
+	"int":    BILBUL,
+}
+
+func LookUpIdent(lit string) TokenType {
+	tok, ok := keywords[lit]
+	if ok {
+		return tok
+	}
+	return IDENT
 }
