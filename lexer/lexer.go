@@ -13,7 +13,7 @@ type lexer struct {
 
 func NewLex(input string) *lexer {
 	l := &lexer{input: input}
-	l.readChar() // so that l.char point to first char in input and not just 0
+	l.readChar() // so that l.char point to the actual first char in input and not just 0
 	return l
 }
 
@@ -72,6 +72,8 @@ func (lex *lexer) NextToken() token.Token {
 			return tok // return early so that readChar at the bottom didn't run again. the pos and peekPos is move up since we already readChar repeatedly inside lex.readIdentifier()
 		} else if isDigit(lex.char) {
 			tok.Literal = lex.readNumber()
+			// fmt.Println(string(lex.char))
+			// fmt.Println(tok.Literal)
 			tok = token.NewToken(token.BILBUL, tok.Literal)
 			return tok
 		} else {
@@ -91,11 +93,11 @@ func (lex *lexer) readIdentifier() string {
 }
 
 func (lex *lexer) readNumber() string {
-	pos := lex.pos
+	startPos := lex.pos
 	for isDigit(lex.char) {
 		lex.readChar()
 	}
-	return lex.input[pos:lex.pos]
+	return lex.input[startPos:lex.pos]
 }
 
 func (lex *lexer) readChar() {
@@ -103,9 +105,9 @@ func (lex *lexer) readChar() {
 		lex.char = 0
 	} else {
 		lex.char = lex.input[lex.peekPos]
-		lex.pos = lex.peekPos
-		lex.peekPos++
 	}
+	lex.pos = lex.peekPos
+	lex.peekPos++
 }
 
 func (lex *lexer) skipWhiteSpace() {

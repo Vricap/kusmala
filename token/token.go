@@ -8,11 +8,11 @@ const (
 	EOF     TokenType = "EOF"
 
 	IDENT  TokenType = "IDENT"  // user-defined. e.g variable name
-	BILBUL TokenType = "BILBUL" // bilangan bulan / int
+	BILBUL TokenType = "BILBUL" // bilangan bulat / int
 
 	// operator
 	ASSIGN     TokenType = "="
-	PLUS       TokenType = "PLUS"
+	PLUS       TokenType = "+"
 	MINUS      TokenType = "-"
 	BANG       TokenType = "!"
 	ASTERISK   TokenType = "*"
