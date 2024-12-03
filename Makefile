@@ -7,3 +7,4 @@ build:
 
 test:
 	go test ./lexer
+	go test ./parser

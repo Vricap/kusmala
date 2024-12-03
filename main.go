@@ -9,15 +9,6 @@ import (
 )
 
 func main() {
-	// in := `1 + 1`
-	// lex := lexer.NewLex(in)
-
-	// tok := lex.NextToken()
-	// for tok.Type != token.EOF {
-	// 	// fmt.Printf("%v\n", tok)
-	// 	tok = lex.NextToken()
-	// }
-
 	user, err := user.Current()
 	if err != nil {
 		panic(err)

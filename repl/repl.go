@@ -13,6 +13,7 @@ const PROMPT = ">>"
 
 func Start(input io.Reader) {
 	scanner := bufio.NewScanner(input)
+	// tokSlice := []token.Token{}
 
 	for {
 		fmt.Printf(PROMPT)
@@ -26,7 +27,9 @@ func Start(input io.Reader) {
 		tok := lex.NextToken()
 		for tok.Type != token.EOF {
 			fmt.Printf("%+v\n", tok)
+			// tokSlice = append(tokSlice, tok)
 			tok = lex.NextToken()
 		}
+		// fmt.Println(tokSlice)
 	}
 }

@@ -4,20 +4,20 @@ import (
 	"github.com/vricap/kusmala/token"
 )
 
-type lexer struct {
-	input   string
-	pos     int  // current position in the input - point to current char
-	peekPos int  // peek the next of the current position
-	char    byte // current char under examination
+type Lexer struct {
+	input   string // the whole code input
+	pos     int    // current position in the input - point to current char
+	peekPos int    // peek the next of the current position
+	char    byte   // current char under examination
 }
 
-func NewLex(input string) *lexer {
-	l := &lexer{input: input}
+func NewLex(input string) *Lexer {
+	l := &Lexer{input: input}
 	l.readChar() // so that l.char point to the actual first char in input and not just 0
 	return l
 }
 
-func (lex *lexer) NextToken() token.Token {
+func (lex *Lexer) NextToken() token.Token {
 	var tok token.Token
 	lex.skipWhiteSpace()
 
@@ -84,7 +84,7 @@ func (lex *lexer) NextToken() token.Token {
 	return tok
 }
 
-func (lex *lexer) readIdentifier() string {
+func (lex *Lexer) readIdentifier() string {
 	pos := lex.pos
 	for isLetter(lex.char) {
 		lex.readChar()
@@ -92,7 +92,7 @@ func (lex *lexer) readIdentifier() string {
 	return lex.input[pos:lex.pos]
 }
 
-func (lex *lexer) readNumber() string {
+func (lex *Lexer) readNumber() string {
 	startPos := lex.pos
 	for isDigit(lex.char) {
 		lex.readChar()
@@ -100,7 +100,7 @@ func (lex *lexer) readNumber() string {
 	return lex.input[startPos:lex.pos]
 }
 
-func (lex *lexer) readChar() {
+func (lex *Lexer) readChar() {
 	if lex.peekPos >= len(lex.input) {
 		lex.char = 0
 	} else {
@@ -110,13 +110,13 @@ func (lex *lexer) readChar() {
 	lex.peekPos++
 }
 
-func (lex *lexer) skipWhiteSpace() {
+func (lex *Lexer) skipWhiteSpace() {
 	for lex.char == ' ' || lex.char == '\t' || lex.char == '\n' || lex.char == '\r' {
 		lex.readChar()
 	}
 }
 
-func (lex *lexer) peekChar() byte {
+func (lex *Lexer) peekChar() byte {
 	if lex.peekPos >= len(lex.input) {
 		return 0
 	} else {

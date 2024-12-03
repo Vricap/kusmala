@@ -233,9 +233,9 @@ var input_three_test_struct []testStruct = []testStruct{
 }
 
 func TestNextToken(t *testing.T) {
-	input := input_three
+	input := input_three // the code input
 
-	test := input_three_test_struct
+	test := input_three_test_struct // the expected token
 
 	lex := NewLex(input)
 
