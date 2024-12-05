@@ -1,20 +1,25 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/vricap/kusmala/ast"
 	"github.com/vricap/kusmala/lexer"
 	"github.com/vricap/kusmala/token"
 )
 
 type Parser struct {
-	lex *lexer.Lexer
-
+	lex       *lexer.Lexer
+	errors    []string
 	currToken token.Token
 	peekToken token.Token
 }
 
 func NewPars(lex *lexer.Lexer) *Parser {
-	p := &Parser{lex: lex}
+	p := &Parser{
+		lex:    lex,
+		errors: []string{},
+	}
 
 	// call twice so currToken point to first token
 	p.parsNextToken()
@@ -31,36 +36,45 @@ func (pars *Parser) parsNextToken() {
 func (pars *Parser) ParsCode() *ast.Code {
 	statement := []ast.Statement{}
 	for pars.currToken.Type != token.EOF {
-
-		if pars.currToken.Type == token.BUAT {
-			statement = append(statement, pars.parsBuatStatement())
-		}
+		statement = append(statement, pars.parsStatement())
 		pars.parsNextToken()
 	}
 	return &ast.Code{Statements: statement}
+}
+
+func (pars *Parser) parsStatement() ast.Statement {
+	switch pars.currToken.Type {
+	case token.BUAT:
+		return pars.parsBuatStatement()
+	default:
+		return nil
+	}
 }
 
 func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 	statement := &ast.BuatStatement{
 		Token: pars.currToken,
 	}
-	pars.parsNextToken() // currToken now have to be point to ident name
+	if !pars.expectPeek(token.IDENT) {
+		// pars.Errors("Sebuah buat statement membutuhkan nama!")
+		pars.peekError(token.IDENT)
+	}
 
-	ident := pars.parsIdent() // parse the ident name
+	pars.parsNextToken()              // currToken now have to be point to ident name
+	statement.Name = pars.parsIdent() // parse the ident name
 
-	// now the peekToken should be '=', but if it not, panic
-	if pars.peekToken.Type != token.ASSIGN {
-		pars.parsError("Tanda '=' tidak ditemukan!")
+	if !pars.expectPeek(token.ASSIGN) {
+		// pars.Errors("Tanda '=' tidak ditemukan!")
+		pars.peekError(token.ASSIGN)
 	}
 	pars.parsNextToken()
+	pars.parsNextToken() // now the currToken should be the expression
 
-	expr := pars.parsExpression()
-	statement.Name = ident
-	statement.Expression = expr
-
+	statement.Expression = pars.parsExpression()
 	return statement
 }
 
+// TODO: this is simple enough, better not separate function
 func (pars *Parser) parsIdent() ast.Identifier {
 	return ast.Identifier{
 		Token: pars.currToken,
@@ -69,15 +83,24 @@ func (pars *Parser) parsIdent() ast.Identifier {
 }
 
 func (pars *Parser) parsExpression() string {
-	pars.parsNextToken()
 	expr := ""
 	for pars.currToken.Type != token.SEMICOLON {
+		// TODO: we just return the expression string for now
 		expr += pars.currToken.Literal
 		pars.parsNextToken()
 	}
 	return expr
 }
 
-func (pars *Parser) parsError(msg string) {
-	panic(msg)
+func (pars *Parser) expectPeek(tok token.TokenType) bool {
+	return pars.peekToken.Type == tok
+}
+
+// func (pars *Parser) AnyErrors(msg string) []string {
+// 	return pars.errors
+// }
+
+func (pars *Parser) peekError(expectTok token.TokenType) {
+	msg := fmt.Sprintf("Expected next token is %s, but got %s", expectTok, pars.peekToken)
+	pars.errors = append(pars.errors, msg)
 }

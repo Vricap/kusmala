@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/vricap/kusmala/token"
+import (
+	"github.com/vricap/kusmala/token"
+)
 
 // node in the tree
 type Node interface {
@@ -40,6 +42,7 @@ type BuatStatement struct {
 }
 
 func (bs *BuatStatement) TokenLiteral() string {
+	// return fmt.Sprintf("Token: %v | Name: %v | Expression: %s", bs.Token, bs.Name, bs.Expression)
 	return bs.Token.Literal
 }
 func (bs *BuatStatement) statementNode() {}
