@@ -58,11 +58,11 @@ func (i *Identifier) TokenLiteral() string {
 func (i *Identifier) identifierNode() {}
 
 type KembalikanStatement struct {
-	Token token.Token
-	Value string // the value expression that will be returned
+	Token      token.Token
+	Expression string // the value expression that will be returned
 }
 
-func (ks *KembalikanStatement) TokenLitral() string {
+func (ks *KembalikanStatement) TokenLiteral() string {
 	return ks.Token.Literal
 }
 

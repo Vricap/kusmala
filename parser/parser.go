@@ -46,6 +46,8 @@ func (pars *Parser) parsStatement() ast.Statement {
 	switch pars.currToken.Type {
 	case token.BUAT:
 		return pars.parsBuatStatement()
+	case token.KEMBALIKAN:
+		return pars.parsKembalikanStatement()
 	default:
 		return nil
 	}
@@ -72,6 +74,15 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 
 	statement.Expression = pars.parsExpression()
 	return statement
+}
+
+func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
+	statemtent := &ast.KembalikanStatement{
+		Token: pars.currToken,
+	}
+	pars.parsNextToken()
+	statemtent.Expression = pars.parsExpression()
+	return statemtent
 }
 
 // TODO: this is simple enough, better not separate function

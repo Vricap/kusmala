@@ -8,7 +8,7 @@ import (
 )
 
 type test_struct struct {
-	expectedIdent string
+	expected string
 }
 
 // buat statement test
@@ -18,9 +18,9 @@ buat y = 2;
 buat buzz = 12345;
 `
 var buat_input_test_struct []test_struct = []test_struct{
-	{expectedIdent: "x"},
-	{expectedIdent: "y"},
-	{expectedIdent: "buzz"},
+	{expected: "x"},
+	{expected: "y"},
+	{expected: "buzz"},
 }
 
 func TestBuatStatement(t *testing.T) {
@@ -52,14 +52,60 @@ func TestBuatStatement(t *testing.T) {
 			t.Fatalf("s is not *ast.BuatStatement. got: %T", s)
 		}
 
-		if buatStatementStruct.Name.Value != tt.expectedIdent {
-			t.Fatalf("buatStatementStruct.Name.Value not '%s'", tt.expectedIdent)
+		if buatStatementStruct.Name.Value != tt.expected {
+			t.Fatalf("buatStatementStruct.Name.Value not '%s'", tt.expected)
 		}
 
-		if buatStatementStruct.Name.TokenLiteral() != tt.expectedIdent {
-			t.Fatalf("s.Name not '%s'. got: %s", tt.expectedIdent, buatStatementStruct.Name)
+		if buatStatementStruct.Name.TokenLiteral() != tt.expected {
+			t.Fatalf("s.Name not '%s'. got: %s", tt.expected, buatStatementStruct.Name)
 		}
 
+	}
+}
+
+// kembalikan statement test
+// kembalikan <expresion>;
+var kembalikan_input string = `
+kembalikan 5;
+kembalikan 10;
+kembalikan add(15);
+`
+
+var kembalikan_input_test_struct []test_struct = []test_struct{
+	{expected: "5"},
+	{expected: "10"},
+	{expected: "add(15)"},
+}
+
+func TestKembalikanStatement(t *testing.T) {
+	input := kembalikan_input
+	test := kembalikan_input_test_struct
+
+	lex := lexer.NewLex(input)
+	pars := NewPars(lex)
+	tree := pars.ConstructTree()
+	checkPeekError(t, pars) // check if there error in parsing stage
+
+	if tree == nil {
+		t.Fatal("ConstructTree() returned nil")
+	}
+	if len(tree.Statements) != 3 {
+		t.Fatalf("tree.Statements does not contain 3 statement. got: %d", len(tree.Statements))
+	}
+
+	for i, tt := range test {
+		each := tree.Statements[i]
+		if each.TokenLiteral() != "kembalikan" {
+			t.Fatalf("each.TokenLiteral() is not 'kembalikan'. got: %v", each.TokenLiteral())
+		}
+
+		x, ok := each.(*ast.KembalikanStatement)
+		if !ok {
+			t.Fatalf("each is not *ast.KembalikanStatement. got: %T", each)
+		}
+		if tt.expected != x.Expression {
+			t.Fatalf("Expected: %s. got: %s", tt.expected, x.Expression)
+		}
 	}
 }
 
@@ -69,33 +115,9 @@ func checkPeekError(t *testing.T, pars *Parser) {
 	if len(errors) == 0 {
 		return
 	}
-
 	t.Errorf("There's %d error in parsing stage.", len(errors))
 	for i, msg := range errors {
 		t.Errorf("%d: %s", i+1, msg)
 	}
 	t.FailNow()
 }
-
-// kembalikan statement test
-// kembalikan <expresion>;
-// var kembalikan_input string = `
-// kembalikan 5;
-// kembalikan 10;
-// kembalikan add(15);
-// `
-
-// var kembalikan_input_test_struct []test_struct = []test_struct{
-// 	{expectedIdent: "5"},
-// 	{expectedIdent: "10"},
-// 	{expectedIdent: "add(15)"},
-// }
-
-// func TestKembalikanStatement(t *testing.T) {
-// 	input := kembalikan_input
-// 	test := kembalikan_input_test_struct
-
-// 	lex := lexer.NewLex(input)
-// 	pars := NewPars(lex)
-// 	code := pars.ParsCode()
-// }
