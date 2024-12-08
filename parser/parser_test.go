@@ -11,36 +11,37 @@ type test_struct struct {
 	expectedIdent string
 }
 
-var input_one string = `
+// buat statement test
+var buat_input string = `
 buat x = 1;
 buat y = 2;
 buat buzz = 12345;
 `
-var input_one_test_struct []test_struct = []test_struct{
+var buat_input_test_struct []test_struct = []test_struct{
 	{expectedIdent: "x"},
 	{expectedIdent: "y"},
 	{expectedIdent: "buzz"},
 }
 
 func TestBuatStatement(t *testing.T) {
-	input := input_one
-	test := input_one_test_struct
+	input := buat_input
+	test := buat_input_test_struct
 
 	lex := lexer.NewLex(input)
 	pars := NewPars(lex)
 
-	code := pars.ParsCode()
+	tree := pars.ConstructTree()
 	checkPeekError(t, pars) // check if there error in parsing stage
 
-	if code == nil {
+	if tree == nil {
 		t.Fatal("ParsCode() returned nil")
 	}
-	if len(code.Statements) != 3 {
-		t.Fatalf("code.Statements does not contain 3 statement. got: %d", len(code.Statements))
+	if len(tree.Statements) != 3 {
+		t.Fatalf("tree.Statements does not contain 3 statement. got: %d", len(tree.Statements))
 	}
 
 	for i, tt := range test {
-		s := code.Statements[i]
+		s := tree.Statements[i]
 
 		if s.TokenLiteral() != "buat" {
 			t.Fatalf("s.TokenLiteral() is not 'buat'. got: %v", s.TokenLiteral())
@@ -75,3 +76,26 @@ func checkPeekError(t *testing.T, pars *Parser) {
 	}
 	t.FailNow()
 }
+
+// kembalikan statement test
+// kembalikan <expresion>;
+// var kembalikan_input string = `
+// kembalikan 5;
+// kembalikan 10;
+// kembalikan add(15);
+// `
+
+// var kembalikan_input_test_struct []test_struct = []test_struct{
+// 	{expectedIdent: "5"},
+// 	{expectedIdent: "10"},
+// 	{expectedIdent: "add(15)"},
+// }
+
+// func TestKembalikanStatement(t *testing.T) {
+// 	input := kembalikan_input
+// 	test := kembalikan_input_test_struct
+
+// 	lex := lexer.NewLex(input)
+// 	pars := NewPars(lex)
+// 	code := pars.ParsCode()
+// }

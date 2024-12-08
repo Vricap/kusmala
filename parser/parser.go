@@ -33,13 +33,13 @@ func (pars *Parser) parsNextToken() {
 	pars.peekToken = pars.lex.NextToken()
 }
 
-func (pars *Parser) ParsCode() *ast.Code {
+func (pars *Parser) ConstructTree() *ast.Tree {
 	statement := []ast.Statement{}
 	for pars.currToken.Type != token.EOF {
 		statement = append(statement, pars.parsStatement())
 		pars.parsNextToken()
 	}
-	return &ast.Code{Statements: statement}
+	return &ast.Tree{Statements: statement}
 }
 
 func (pars *Parser) parsStatement() ast.Statement {

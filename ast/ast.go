@@ -21,14 +21,14 @@ type Expression interface {
 	expressionNode() // marker to identify a Expression node
 }
 
-// Code is the root of every tree the parser will construct
-type Code struct {
+// Tree is the root of every tree the parser will construct
+type Tree struct {
 	Statements []Statement // consisting of struct that implement Statement interface
 }
 
-func (c *Code) TokenLiteral() string {
-	if len(c.Statements) > 0 {
-		return c.Statements[0].TokenLiteral() // return the first statement node -- the root
+func (t *Tree) TokenLiteral() string {
+	if len(t.Statements) > 0 {
+		return t.Statements[0].TokenLiteral() // return the first statement node -- the root
 	} else {
 		return ""
 	}
@@ -56,3 +56,14 @@ func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
 }
 func (i *Identifier) identifierNode() {}
+
+type KembalikanStatement struct {
+	Token token.Token
+	Value string // the value expression that will be returned
+}
+
+func (ks *KembalikanStatement) TokenLitral() string {
+	return ks.Token.Literal
+}
+
+func (ks *KembalikanStatement) statementNode() {}
