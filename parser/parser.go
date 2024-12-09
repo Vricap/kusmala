@@ -32,7 +32,7 @@ type Parser struct {
 	currToken token.Token
 	peekToken token.Token
 
-	// map to define the token type assosiations with prefix or infix
+	// a map to define the token type assosiations with prefix or infix function
 	prefixParsMap map[token.TokenType]prefixParsFunc
 	infixParsMap  map[token.TokenType]infixParsFunc
 }
@@ -47,8 +47,8 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.parsNextToken()
 	pars.parsNextToken()
 
-	pars.prefixParsMap = map[token.TokenType]prefixParsFunc{}
-	pars.registerPrefix(token.IDENT, pars.parsIdent)
+	pars.prefixParsMap = map[token.TokenType]prefixParsFunc{} // initialize empty prefixParsMap map
+	pars.registerPrefix(token.IDENT, pars.parsIdent)          // register token type ident with parsIdent function which match prefixParsFunc function type
 	return pars
 }
 
@@ -120,31 +120,31 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	return statemtent
 }
 
-func (pars *Parser) parsIdent() ast.Expression {
-	return &ast.Identifier{
-		Token: pars.currToken,
-		Value: pars.currToken.Literal,
-	}
-}
-
 func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 	exprStmnt := &ast.ExpressionStatement{
 		Token: pars.currToken,
 	}
 	exprStmnt.Expression = pars.parsExpression(LOWEST)
 	if pars.peekToken.Type == token.SEMICOLON {
-		pars.parsNextToken()
+		pars.parsNextToken() // so currToken point to ; since we don't want to do parsStatement()
 	}
 	return exprStmnt
 }
 
 func (pars *Parser) parsExpression(precedence int) ast.Expression {
-	prefix := pars.prefixParsMap[pars.currToken.Type]
+	prefix := pars.prefixParsMap[pars.currToken.Type] // check if currToken have function assosiated with that
 	if prefix == nil {
 		return nil
 	}
-	leftExp := prefix()
+	leftExp := prefix() // if so, call it
 	return leftExp
+}
+
+func (pars *Parser) parsIdent() ast.Expression { // this signature match the prefixParsFunc function type
+	return &ast.Identifier{
+		Token: pars.currToken,
+		Value: pars.currToken.Literal,
+	}
 }
 
 func (pars *Parser) expectPeek(tok token.TokenType) bool {
@@ -156,6 +156,7 @@ func (pars *Parser) peekError(expectTok token.TokenType) {
 	pars.errors = append(pars.errors, msg)
 }
 
+// register the token type to the eiter prefixParsFunc or infixParsFunc function type
 func (pars *Parser) registerPrefix(tokType token.TokenType, f prefixParsFunc) {
 	pars.prefixParsMap[tokType] = f
 }
