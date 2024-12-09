@@ -109,6 +109,36 @@ func TestKembalikanStatement(t *testing.T) {
 	}
 }
 
+func TestIdentifierExpression(t *testing.T) {
+	input := "foo;"
+
+	lex := lexer.NewLex(input)
+	pars := NewPars(lex)
+
+	tree := pars.ConstructTree()
+	checkPeekError(t, pars)
+
+	if len(tree.Statements) != 1 {
+		t.Fatalf("Tree has not enough statements. got: %d", len(tree.Statements))
+	}
+
+	statement, ok := tree.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("tree.Statements[0] is not *ast.ExpressionStatement. got: %T", tree.Statements[0])
+	}
+
+	ident, ok := statement.Expression.(*ast.Identifier)
+	if !ok {
+		t.Fatalf("statement.Expression is not *ast.Identifier. got: %T", statement.Expression)
+	}
+	if ident.Value != "foo" {
+		t.Fatalf("ident.Value is not 'foo'. got: %s", ident.Value)
+	}
+	if ident.TokenLiteral() != "foo" {
+		t.Fatalf("ident.TokenLiteral() is not 'foo'. got: %s", ident.TokenLiteral())
+	}
+}
+
 func checkPeekError(t *testing.T, pars *Parser) {
 	errors := pars.errors
 

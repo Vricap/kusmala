@@ -13,6 +13,18 @@ import (
 type prefixParsFunc func() ast.Expression
 type infixParsFunc func(ast.Expression) ast.Expression
 
+// operator precedence, the lower the number, the less the priority
+const (
+	_ int = iota // since its zero, so we dont need that
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > or <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -X or !X
+	CALL        // myFunction(X)
+)
+
 type Parser struct {
 	lex    *lexer.Lexer
 	errors []string
@@ -26,16 +38,18 @@ type Parser struct {
 }
 
 func NewPars(lex *lexer.Lexer) *Parser {
-	p := &Parser{
+	pars := &Parser{
 		lex:    lex,
 		errors: []string{},
 	}
 
 	// call twice so currToken point to first token
-	p.parsNextToken()
-	p.parsNextToken()
+	pars.parsNextToken()
+	pars.parsNextToken()
 
-	return p
+	pars.prefixParsMap = map[token.TokenType]prefixParsFunc{}
+	pars.registerPrefix(token.IDENT, pars.parsIdent)
+	return pars
 }
 
 func (pars *Parser) parsNextToken() {
@@ -59,7 +73,8 @@ func (pars *Parser) parsStatement() ast.Statement {
 	case token.KEMBALIKAN:
 		return pars.parsKembalikanStatement()
 	default:
-		return nil
+		// since the real statement in the language in only 2 (buat & kembalikan), then other statement must be expression statement
+		return pars.parsExpressionStatement()
 	}
 }
 
@@ -72,8 +87,11 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 		pars.peekError(token.IDENT)
 	}
 
-	pars.parsNextToken()              // currToken now have to be point to ident name
-	statement.Name = pars.parsIdent() // parse the ident name
+	pars.parsNextToken() // currToken now have to be point to ident name
+	statement.Name = &ast.Identifier{
+		Token: pars.currToken,
+		Value: pars.currToken.Literal,
+	}
 
 	if !pars.expectPeek(token.ASSIGN) {
 		// pars.Errors("Tanda '=' tidak ditemukan!")
@@ -102,22 +120,31 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	return statemtent
 }
 
-// TODO: this is simple enough, better not separate function
-func (pars *Parser) parsIdent() *ast.Identifier {
+func (pars *Parser) parsIdent() ast.Expression {
 	return &ast.Identifier{
 		Token: pars.currToken,
 		Value: pars.currToken.Literal,
 	}
 }
 
-func (pars *Parser) parsExpression() string {
-	expr := ""
-	for pars.currToken.Type != token.SEMICOLON {
-		// TODO: we just return the expression string for now
-		expr += pars.currToken.Literal
+func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
+	exprStmnt := &ast.ExpressionStatement{
+		Token: pars.currToken,
+	}
+	exprStmnt.Expression = pars.parsExpression(LOWEST)
+	if pars.peekToken.Type == token.SEMICOLON {
 		pars.parsNextToken()
 	}
-	return expr
+	return exprStmnt
+}
+
+func (pars *Parser) parsExpression(precedence int) ast.Expression {
+	prefix := pars.prefixParsMap[pars.currToken.Type]
+	if prefix == nil {
+		return nil
+	}
+	leftExp := prefix()
+	return leftExp
 }
 
 func (pars *Parser) expectPeek(tok token.TokenType) bool {
