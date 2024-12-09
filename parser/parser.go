@@ -8,11 +8,21 @@ import (
 	"github.com/vricap/kusmala/token"
 )
 
+// the idea behind pratt parser is 'token type associations'. which mean, when we encounter certain token type, we call the parser function related to it.
+// in our  operator precedence parser, there's two kind of parsing. depend on the token position, is it in the prefix or infix
+type prefixParsFunc func() ast.Expression
+type infixParsFunc func(ast.Expression) ast.Expression
+
 type Parser struct {
-	lex       *lexer.Lexer
-	errors    []string
+	lex    *lexer.Lexer
+	errors []string
+
 	currToken token.Token
 	peekToken token.Token
+
+	// map to define the token type assosiations with prefix or infix
+	prefixParsMap map[token.TokenType]prefixParsFunc
+	infixParsMap  map[token.TokenType]infixParsFunc
 }
 
 func NewPars(lex *lexer.Lexer) *Parser {
@@ -114,11 +124,14 @@ func (pars *Parser) expectPeek(tok token.TokenType) bool {
 	return pars.peekToken.Type == tok
 }
 
-// func (pars *Parser) AnyErrors(msg string) []string {
-// 	return pars.errors
-// }
-
 func (pars *Parser) peekError(expectTok token.TokenType) {
 	msg := fmt.Sprintf("Expected next token is %s, but got %s", expectTok, pars.peekToken)
 	pars.errors = append(pars.errors, msg)
+}
+
+func (pars *Parser) registerPrefix(tokType token.TokenType, f prefixParsFunc) {
+	pars.prefixParsMap[tokType] = f
+}
+func (pars *Parser) registerInfix(tokeType token.TokenType, f infixParsFunc) {
+	pars.infixParsMap[tokeType] = f
 }
