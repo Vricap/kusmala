@@ -69,10 +69,13 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 		// pars.Errors("Tanda '=' tidak ditemukan!")
 		pars.peekError(token.ASSIGN)
 	}
-	pars.parsNextToken()
-	pars.parsNextToken() // now the currToken should be the expression
 
-	statement.Expression = pars.parsExpression()
+	// we skip the expression for now
+	for pars.currToken.Type != token.SEMICOLON {
+		pars.parsNextToken()
+	}
+
+	// statement.Expression = pars.parsExpression()
 	return statement
 }
 
@@ -80,14 +83,18 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	statemtent := &ast.KembalikanStatement{
 		Token: pars.currToken,
 	}
-	pars.parsNextToken()
-	statemtent.Expression = pars.parsExpression()
+
+	// we skip the expression for now
+	for pars.currToken.Type != token.SEMICOLON {
+		pars.parsNextToken()
+	}
+	// statemtent.Expression = pars.parsExpression()
 	return statemtent
 }
 
 // TODO: this is simple enough, better not separate function
-func (pars *Parser) parsIdent() ast.Identifier {
-	return ast.Identifier{
+func (pars *Parser) parsIdent() *ast.Identifier {
+	return &ast.Identifier{
 		Token: pars.currToken,
 		Value: pars.currToken.Literal,
 	}
