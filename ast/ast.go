@@ -95,7 +95,7 @@ func (ks *KembalikanStatement) String() string {
 // ExpressionStatement is statement that consist solely of one expression. it's a wrapper so that we could insert this in Tree Statements slice
 type ExpressionStatement struct {
 	Token      token.Token // the first token in the ExpressionStatement
-	Expression Expression
+	Expression Expression  // the struct that implement Expression interfae. e.g. Identifier, IntegerLiteral, etc...
 }
 
 func (ex *ExpressionStatement) TokenLiteral() string {
@@ -137,4 +137,18 @@ func (il *IntegerLiteral) TokenLiteral() string {
 func (il *IntegerLiteral) expressionNode() {}
 func (il *IntegerLiteral) String() string {
 	return il.Token.Literal
+}
+
+type PrefixExpression struct {
+	Token    token.Token // the prefix token. e.g - or !
+	Operator string
+	Right    Expression // the expression struct that implement Expression interface
+}
+
+func (pe *PrefixExpression) TokenLiteral() string {
+	return pe.Token.Literal
+}
+func (pe *PrefixExpression) expressionNode() {}
+func (pe *PrefixExpression) String() string {
+	return pe.Token.Literal
 }

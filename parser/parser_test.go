@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/vricap/kusmala/ast"
@@ -168,6 +170,63 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 }
 
+func TestPrefixExpression(t *testing.T) {
+	input := `
+!5;
+-15;
+`
+	testStruct := []struct {
+		operator string
+		integer  int
+	}{
+		{operator: "!", integer: 5},
+		{operator: "-", integer: 15},
+	}
+
+	lex := lexer.NewLex(input)
+	pars := NewPars(lex)
+	tree := pars.ConstructTree()
+	checkPeekError(t, pars)
+
+	fmt.Printf("%T \n", tree.Statements[0])
+	if len(tree.Statements) != 2 {
+		t.Fatalf("len(tree.Statements) not 2. got: %d", len(tree.Statements))
+	}
+
+	// TODO: refactor
+	statement1, ok := tree.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("tree.Statements[0] is not *ast.ExpressionStatement. got: %T", tree.Statements[0])
+	}
+	statement2, ok := tree.Statements[1].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("tree.Statements[1] is not *ast.ExpressionStatement. got: %T", tree.Statements[1])
+	}
+
+	expr1, ok := statement1.Expression.(*ast.PrefixExpression)
+	if !ok {
+		t.Fatalf("statement1.Expression is not *ast.PrefixExpression. got: %T", statement1.Expression)
+	}
+	expr2, ok := statement2.Expression.(*ast.PrefixExpression)
+	if !ok {
+		t.Fatalf("statement2.Expression is not *ast.PrefixExpression. got: %T", statement2.Expression)
+	}
+
+	if expr1.Operator != testStruct[0].operator {
+		t.Fatalf("expr1.Operator is not %s. got: %s", testStruct[0].operator, expr1.Operator)
+	}
+	if expr2.Operator != testStruct[1].operator {
+		t.Fatalf("expr2.Operator is not %s. got: %s", testStruct[1].operator, expr2.Operator)
+	}
+
+	if !checkIntegerLiteral(t, expr1.Right, testStruct[0].integer) {
+		return
+	}
+	if !checkIntegerLiteral(t, expr2.Right, testStruct[1].integer) {
+		return
+	}
+}
+
 func checkPeekError(t *testing.T, pars *Parser) {
 	errors := pars.errors
 
@@ -179,4 +238,21 @@ func checkPeekError(t *testing.T, pars *Parser) {
 		t.Errorf("%d: %s", i+1, msg)
 	}
 	t.FailNow()
+}
+
+func checkIntegerLiteral(t *testing.T, il ast.Expression, expect int) bool {
+	integer, ok := il.(*ast.IntegerLiteral)
+	if !ok {
+		t.Errorf("il is not *ast.IntegerLiteral. got: %T", il)
+		return false
+	}
+	if integer.Value != expect {
+		t.Errorf("integer.Value is not %d. got: %d", expect, integer.Value)
+		return false
+	}
+	if integer.TokenLiteral() != strconv.Itoa(expect) {
+		t.Errorf("integer.TokenLiteral() is not %s. got: %s", strconv.Itoa(expect), integer.TokenLiteral())
+		return false
+	}
+	return true
 }

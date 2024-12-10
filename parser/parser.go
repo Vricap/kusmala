@@ -51,6 +51,8 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.prefixParsMap = map[token.TokenType]prefixParsFunc{} // initialize empty prefixParsMap map
 	pars.registerPrefix(token.IDENT, pars.parsIdent)          // register token type ident with parsIdent function which match prefixParsFunc function type
 	pars.registerPrefix(token.BILBUL, pars.parsIntegerLiteral)
+	pars.registerPrefix(token.BANG, pars.parsPrefix)
+	pars.registerPrefix(token.MINUS, pars.parsPrefix)
 	return pars
 }
 
@@ -144,6 +146,7 @@ func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 func (pars *Parser) parsExpression(precedence int) ast.Expression {
 	prefix := pars.prefixParsMap[pars.currToken.Type] // check if currToken have function assosiated with that
 	if prefix == nil {
+		pars.errors = append(pars.errors, fmt.Sprintf("There's not function assosiated with %v", pars.currToken.Type))
 		return nil
 	}
 	leftExp := prefix() // if so, call it
@@ -168,6 +171,22 @@ func (pars *Parser) parsIntegerLiteral() ast.Expression {
 		Token: pars.currToken,
 		Value: literal,
 	}
+}
+
+func (pars *Parser) parsPrefix() ast.Expression {
+	if !pars.expectPeek(token.BILBUL) {
+		pars.peekError(token.BILBUL)
+		return nil
+	}
+	prefix := &ast.PrefixExpression{
+		Token:    pars.currToken,
+		Operator: pars.currToken.Literal,
+	}
+	pars.parsNextToken() // currToken now point to the integer
+
+	right := pars.parsExpression(PREFIX) // essentially same as pars.parsIntegerLiteral()
+	prefix.Right = right
+	return prefix
 }
 
 func (pars *Parser) expectPeek(tok token.TokenType) bool {
