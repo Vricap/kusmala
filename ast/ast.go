@@ -45,18 +45,9 @@ func (t *Tree) String() string {
 	return out.String()
 }
 
-type Identifier struct {
-	Token token.Token // token.IDENT
-	Value string      // the name of the variable, function name etc...
-}
-
-func (i *Identifier) TokenLiteral() string {
-	return i.Token.Literal
-}
-func (i *Identifier) expressionNode() {}
-func (i *Identifier) String() string {
-	return i.Value
-}
+/*******************************************
+*			STATEMENT STRUCT			   *
+*******************************************/
 
 // example of buat statement: buat x = 1 + 1;
 type BuatStatement struct {
@@ -116,4 +107,34 @@ func (ex *ExpressionStatement) String() string {
 		return ex.Expression.String()
 	}
 	return ""
+}
+
+/*******************************************
+*			EXPRESSION STRUCT			   *
+*******************************************/
+
+type Identifier struct {
+	Token token.Token // token.IDENT
+	Value string      // the name of the variable, function name etc...
+}
+
+func (i *Identifier) TokenLiteral() string {
+	return i.Token.Literal
+}
+func (i *Identifier) expressionNode() {}
+func (i *Identifier) String() string {
+	return i.Value
+}
+
+type IntegerLiteral struct {
+	Token token.Token
+	Value int // platform dependent. 32 size in 32 bits machine, 64 size in 64 bits machine
+}
+
+func (il *IntegerLiteral) TokenLiteral() string {
+	return il.Token.Literal
+}
+func (il *IntegerLiteral) expressionNode() {}
+func (il *IntegerLiteral) String() string {
+	return il.Token.Literal
 }

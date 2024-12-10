@@ -139,6 +139,35 @@ func TestIdentifierExpression(t *testing.T) {
 	}
 }
 
+func TestIntegerLiteralExpression(t *testing.T) {
+	input := "1;"
+	lex := lexer.NewLex(input)
+	pars := NewPars(lex)
+
+	tree := pars.ConstructTree()
+	checkPeekError(t, pars)
+
+	if len(tree.Statements) != 1 {
+		t.Fatalf("Tree has not enough statement. got: %d", len(tree.Statements))
+	}
+
+	statement, ok := tree.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("tree.Statements[0] is not *ast.ExpressionStatement. got: %T", tree.Statements[0])
+	}
+
+	literal, ok := statement.Expression.(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("Expression not *ast.IntegerLiteral. got: %T", statement.Expression)
+	}
+	if literal.Value != 1 {
+		t.Errorf("litereal.Value is not 1. got: %d", literal.Value)
+	}
+	if literal.TokenLiteral() != "1" {
+		t.Errorf("literal.TokenLiteral() is not '1'. got: %s", literal.TokenLiteral())
+	}
+}
+
 func checkPeekError(t *testing.T, pars *Parser) {
 	errors := pars.errors
 

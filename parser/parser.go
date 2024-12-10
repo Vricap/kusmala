@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/vricap/kusmala/ast"
 	"github.com/vricap/kusmala/lexer"
@@ -49,6 +50,7 @@ func NewPars(lex *lexer.Lexer) *Parser {
 
 	pars.prefixParsMap = map[token.TokenType]prefixParsFunc{} // initialize empty prefixParsMap map
 	pars.registerPrefix(token.IDENT, pars.parsIdent)          // register token type ident with parsIdent function which match prefixParsFunc function type
+	pars.registerPrefix(token.BILBUL, pars.parsIntegerLiteral)
 	return pars
 }
 
@@ -65,6 +67,10 @@ func (pars *Parser) ConstructTree() *ast.Tree {
 	}
 	return &ast.Tree{Statements: statement}
 }
+
+/*******************************************
+*			STATEMENT PARSING			   *
+*******************************************/
 
 func (pars *Parser) parsStatement() ast.Statement {
 	switch pars.currToken.Type {
@@ -120,13 +126,17 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	return statemtent
 }
 
+/*******************************************
+*			EXPRESSION PARSING			   *
+*******************************************/
+
 func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 	exprStmnt := &ast.ExpressionStatement{
 		Token: pars.currToken,
 	}
 	exprStmnt.Expression = pars.parsExpression(LOWEST)
 	if pars.peekToken.Type == token.SEMICOLON {
-		pars.parsNextToken() // so currToken point to ; since we don't want to do parsStatement()
+		pars.parsNextToken() // so currToken point to ; since we don't want to do parsStatement() again - we are in eof
 	}
 	return exprStmnt
 }
@@ -144,6 +154,19 @@ func (pars *Parser) parsIdent() ast.Expression { // this signature match the pre
 	return &ast.Identifier{
 		Token: pars.currToken,
 		Value: pars.currToken.Literal,
+	}
+}
+
+func (pars *Parser) parsIntegerLiteral() ast.Expression {
+	literal, err := strconv.Atoi(pars.currToken.Literal)
+	if err != nil {
+		msg := fmt.Sprintf("could not parse literal: %s to integer", pars.currToken.Literal)
+		pars.errors = append(pars.errors, msg)
+		return nil
+	}
+	return &ast.IntegerLiteral{
+		Token: pars.currToken,
+		Value: literal,
 	}
 }
 
