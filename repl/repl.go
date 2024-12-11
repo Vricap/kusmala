@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/vricap/kusmala/ast"
 	"github.com/vricap/kusmala/lexer"
-	"github.com/vricap/kusmala/token"
+	"github.com/vricap/kusmala/parser"
 )
 
 const PROMPT = ">>"
@@ -23,13 +24,19 @@ func Start(input io.Reader) {
 		}
 		line := scanner.Text()
 		lex := lexer.NewLex(line)
+		pars := parser.NewPars(lex)
+		tree := pars.ConstructTree()
 
-		tok := lex.NextToken()
-		for tok.Type != token.EOF {
-			fmt.Printf("%+v\n", tok)
-			// tokSlice = append(tokSlice, tok)
-			tok = lex.NextToken()
+		for _, s := range tree.Statements {
+			stmt, _ := s.(*ast.ExpressionStatement)
+			s, _ := stmt.Expression.(*ast.InfixExpression)
+			fmt.Println(s)
 		}
-		// fmt.Println(tokSlice)
+
+		// tok := lex.NextToken()
+		// for tok.Type != token.EOF {
+		// 	fmt.Printf("%+v\n", tok)
+		// 	tok = lex.NextToken()
+		// }
 	}
 }

@@ -12,7 +12,7 @@ type Node interface {
 	String() string
 }
 
-// each node type could be either a statement
+// each node type could be either a statement...
 type Statement interface {
 	Node
 	statementNode() // marker to identify a Statement node
@@ -149,6 +149,25 @@ func (pe *PrefixExpression) TokenLiteral() string {
 	return pe.Token.Literal
 }
 func (pe *PrefixExpression) expressionNode() {}
+
+// TODO: see the book on this part
 func (pe *PrefixExpression) String() string {
 	return pe.Token.Literal
+}
+
+type InfixExpression struct {
+	Token    token.Token
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+func (ie *InfixExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+func (ie *InfixExpression) expressionNode() {}
+
+// TODO: see the book on this part
+func (ie *InfixExpression) String() string {
+	return ie.Token.Literal
 }

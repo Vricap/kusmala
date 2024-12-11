@@ -227,6 +227,54 @@ func TestPrefixExpression(t *testing.T) {
 	}
 }
 
+func TestInfinixExpression(t *testing.T) {
+	infixTest := []struct {
+		input    string
+		left     int
+		operator string
+		right    int
+	}{
+		{"5 + 5;", 5, "+", 5},
+		{"5 - 5;", 5, "-", 5},
+		{"5 * 5;", 5, "*", 5},
+		{"5 / 5;", 5, "/", 5},
+		{"5 > 5;", 5, ">", 5},
+		{"5 < 5;", 5, "<", 5},
+		{"5 == 5;", 5, "==", 5},
+		{"5 != 5;", 5, "!=", 5},
+	}
+
+	for _, tt := range infixTest {
+		lex := lexer.NewLex(tt.input)
+		pars := NewPars(lex)
+		tree := pars.ConstructTree()
+		checkPeekError(t, pars)
+
+		if len(tree.Statements) != 1 {
+			t.Fatalf("len(tree.Statements) is not 1. got: %d", len(tree.Statements))
+		}
+
+		statement, ok := tree.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("tree.Statements[0] is not *ast.ExpressionStatement. got: %T", tree.Statements[0])
+		}
+
+		infixExpr, ok := statement.Expression.(*ast.InfixExpression)
+		if !ok {
+			t.Fatalf("statement.Expression is not *ast.InfixExpression. got: %T", statement.Expression)
+		}
+		if !checkIntegerLiteral(t, infixExpr.Left, tt.left) {
+			return
+		}
+		if infixExpr.Operator != tt.operator {
+			t.Fatalf("infixExpr.Operator is not %s. got: %s", tt.operator, infixExpr.Operator)
+		}
+		if !checkIntegerLiteral(t, infixExpr.Right, tt.right) {
+			return
+		}
+	}
+}
+
 func checkPeekError(t *testing.T, pars *Parser) {
 	errors := pars.errors
 
