@@ -9,7 +9,6 @@ import (
 // node in the tree
 type Node interface {
 	TokenLiteral() string
-	String() string
 }
 
 // each node type could be either a statement...
@@ -36,14 +35,6 @@ func (t *Tree) TokenLiteral() string {
 		return ""
 	}
 }
-func (t *Tree) String() string {
-	var out bytes.Buffer
-
-	for _, s := range t.Statements {
-		out.WriteString(s.String()) // append statement string to the buffer
-	}
-	return out.String()
-}
 
 /*******************************************
 *			STATEMENT STRUCT			   *
@@ -67,10 +58,6 @@ func (bs *BuatStatement) String() string {
 	out.WriteString(bs.Name.String())
 	out.WriteString(" = ")
 
-	if bs.Expression != nil {
-		out.WriteString(bs.Expression.String())
-	}
-	out.WriteString(";")
 	return out.String()
 }
 
@@ -83,14 +70,6 @@ func (ks *KembalikanStatement) TokenLiteral() string {
 	return ks.Token.Literal
 }
 func (ks *KembalikanStatement) statementNode() {}
-func (ks *KembalikanStatement) String() string {
-	var out bytes.Buffer
-	out.WriteString(ks.TokenLiteral() + " ")
-	if ks.Expression != nil {
-		out.WriteString(ks.Expression.String())
-	}
-	return out.String()
-}
 
 // ExpressionStatement is statement that consist solely of one expression. it's a wrapper so that we could insert this in Tree Statements slice
 type ExpressionStatement struct {
@@ -102,12 +81,6 @@ func (ex *ExpressionStatement) TokenLiteral() string {
 	return ex.Token.Literal
 }
 func (ex *ExpressionStatement) statementNode() {}
-func (ex *ExpressionStatement) String() string {
-	if ex.Expression != nil {
-		return ex.Expression.String()
-	}
-	return ""
-}
 
 /*******************************************
 *			EXPRESSION STRUCT			   *
@@ -170,4 +143,17 @@ func (ie *InfixExpression) expressionNode() {}
 // TODO: see the book on this part
 func (ie *InfixExpression) String() string {
 	return ie.Token.Literal
+}
+
+type BooleanLiteral struct {
+	Token token.Token
+	Value bool
+}
+
+func (bl *BooleanLiteral) TokenLiteral() string {
+	return bl.Token.Literal
+}
+func (bl *BooleanLiteral) ExpressionNode() {}
+func (bl *BooleanLiteral) String() string {
+	return bl.Token.Literal
 }
