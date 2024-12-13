@@ -273,3 +273,27 @@ func (pars *Parser) currPrecedence() int {
 	}
 	return p
 }
+
+/*
+This infix expression: 1-2+3 translate to this:
+type InfinixExpression struct {
+	Token: token.PLUS
+	Right: type IntegerExpression struct {
+		Token: token.BILBUL
+		Value: 3
+	}
+	Operator: "+"
+	Left: type InfinixExpression struct {
+		Token: token.MINUS
+		Right: type IntegerExpression struct {
+			Token: token.BILBUL
+			Value: 2
+		}
+		Operator: "-"
+		Left: type IntegerExpression struct {
+			Token: token.BILBUL
+			Value: 1
+		}
+	}
+}
+*/

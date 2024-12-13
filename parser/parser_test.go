@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"testing"
@@ -275,6 +276,17 @@ func TestInfinixExpression(t *testing.T) {
 	}
 }
 
+// func TestBooleanLiteral(t *testing.T) {
+// 	input := []struct {
+// 		in     string
+// 		expect string
+// 	}{
+// 		{"benar;", "benar"},
+// 		{"salah;", "salah"},
+// 		{"salah;", "salah"},
+// 	}
+// }
+
 func checkPeekError(t *testing.T, pars *Parser) {
 	errors := pars.errors
 
@@ -303,4 +315,50 @@ func checkIntegerLiteral(t *testing.T, il ast.Expression, expect int) bool {
 		return false
 	}
 	return true
+}
+
+func InfixTreeToString(exp *ast.InfixExpression) string {
+	var buffer bytes.Buffer
+	buffer.WriteString("(")
+	le, ok := exp.Left.(*ast.InfixExpression)
+	if ok {
+		recursiveInfix(le, &buffer)
+	} else {
+		// TODO: what if left is *ast.PrefixExpression?
+		left := exp.Left.(*ast.IntegerLiteral)
+		buffer.WriteString(left.Token.Literal)
+		buffer.WriteString(exp.Operator)
+	}
+
+	re, k := exp.Right.(*ast.InfixExpression)
+	if k {
+		recursiveInfix(re, &buffer)
+	} else {
+		// TODO: what if left is *ast.PrefixExpression?
+		right := exp.Left.(*ast.IntegerLiteral)
+		buffer.WriteString(right.Token.Literal)
+		buffer.WriteString(")")
+	}
+	return buffer.String()
+}
+
+func recursiveInfix(exp *ast.InfixExpression, buffer *bytes.Buffer) {
+	buffer.WriteString("(")
+	le, ok := exp.Left.(*ast.InfixExpression)
+	if ok {
+		recursiveInfix(le, buffer)
+	} else {
+		left := exp.Left.(*ast.IntegerLiteral)
+		buffer.WriteString(left.Token.Literal)
+		buffer.WriteString(exp.Operator)
+	}
+
+	re, k := exp.Right.(*ast.InfixExpression)
+	if k {
+		recursiveInfix(re, buffer)
+	} else {
+		right := exp.Left.(*ast.IntegerLiteral)
+		buffer.WriteString(right.Token.Literal)
+		buffer.WriteString(")")
+	}
 }
