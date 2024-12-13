@@ -65,6 +65,9 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerPrefix(token.BILBUL, pars.parsIntegerLiteral)
 	pars.registerPrefix(token.BANG, pars.parsPrefix)
 	pars.registerPrefix(token.MINUS, pars.parsPrefix)
+	pars.registerPrefix(token.BENAR, pars.parsBooleanLiteral)
+	pars.registerPrefix(token.SALAH, pars.parsBooleanLiteral)
+	pars.registerPrefix(token.LPAREN, pars.parseGroupedExpression)
 
 	// INFIX EXPRESSION
 	pars.infixParsMap = map[token.TokenType]infixParsFunc{}
@@ -202,21 +205,26 @@ func (pars *Parser) parsIntegerLiteral() ast.Expression {
 		Token: pars.currToken,
 		Value: literal,
 	}
-
-	// _, ok := precedence[pars.peekToken.Type]
-	// if ok {
-	// 	pars.parsNextToken()
-	// 	pars.parsInfix(int)
-	// 	return nil
-	// }
 	return int
 }
 
-func (pars *Parser) parsPrefix() ast.Expression {
-	if !pars.expectPeek(token.BILBUL) {
-		pars.peekError(token.BILBUL)
-		return nil
+func (pars *Parser) parsBooleanLiteral() ast.Expression {
+	bool := &ast.BooleanLiteral{
+		Token: pars.currToken,
 	}
+	if pars.currToken.Literal == "benar" {
+		bool.Value = true
+	} else if pars.currToken.Literal == "salah" {
+		bool.Value = false
+	}
+	return bool
+}
+
+func (pars *Parser) parsPrefix() ast.Expression {
+	// if !pars.expectPeek(token.BILBUL) {
+	// 	pars.peekError(token.BILBUL)
+	// 	return nil
+	// }
 	prefix := &ast.PrefixExpression{
 		Token:    pars.currToken,
 		Operator: pars.currToken.Literal,
@@ -238,6 +246,15 @@ func (pars *Parser) parsInfix(left ast.Expression) ast.Expression {
 	pars.parsNextToken()
 	exp.Right = pars.parsExpression(precedence)
 
+	return exp
+}
+
+func (pars *Parser) parseGroupedExpression() ast.Expression {
+	pars.parsNextToken()
+	exp := pars.parsExpression(LOWEST)
+	if !pars.expectPeek(token.RPAREN) {
+		return nil
+	}
 	return exp
 }
 

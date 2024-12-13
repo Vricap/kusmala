@@ -230,23 +230,19 @@ func TestPrefixExpression(t *testing.T) {
 
 func TestInfinixExpression(t *testing.T) {
 	infixTest := []struct {
-		input    string
-		left     int
-		operator string
-		right    int
+		in     string
+		expect string
 	}{
-		{"5 + 5;", 5, "+", 5},
-		{"5 - 5;", 5, "-", 5},
-		{"5 * 5;", 5, "*", 5},
-		{"5 / 5;", 5, "/", 5},
-		{"5 > 5;", 5, ">", 5},
-		{"5 < 5;", 5, "<", 5},
-		{"5 == 5;", 5, "==", 5},
-		{"5 != 5;", 5, "!=", 5},
+		{"1 + 2", "(1 + 2)"},
+		{"1 + 2 - 1", "((1 + 2) - 1)"},
+		{"1 + 2 * 1", "(1 + (2 * 1))"},
+		{"1 + 2 * 1 + 3", "((1 + (2 * 1)) + 3)"},
+		{"9 > 2 == salah;", "((9 > 2) == salah)"},
+		// {"-(5 + 5)", "(-(5 + 5))"},
 	}
 
 	for _, tt := range infixTest {
-		lex := lexer.NewLex(tt.input)
+		lex := lexer.NewLex(tt.in)
 		pars := NewPars(lex)
 		tree := pars.ConstructTree()
 		checkPeekError(t, pars)
@@ -264,26 +260,84 @@ func TestInfinixExpression(t *testing.T) {
 		if !ok {
 			t.Fatalf("statement.Expression is not *ast.InfixExpression. got: %T", statement.Expression)
 		}
-		if !checkIntegerLiteral(t, infixExpr.Left, tt.left) {
-			return
-		}
-		if infixExpr.Operator != tt.operator {
-			t.Fatalf("infixExpr.Operator is not %s. got: %s", tt.operator, infixExpr.Operator)
-		}
-		if !checkIntegerLiteral(t, infixExpr.Right, tt.right) {
-			return
+		var buffer bytes.Buffer
+		infixTreeToString(infixExpr, &buffer)
+		if buffer.String() != tt.expect {
+			t.Fatalf("buffer.String() is not %s. got: %s", tt.expect, buffer.String())
 		}
 	}
 }
 
-// func TestBooleanLiteral(t *testing.T) {
-// 	input := []struct {
-// 		in     string
-// 		expect string
+func TestBooleanLiteral(t *testing.T) {
+	input := []struct {
+		in     string
+		expect bool
+	}{
+		{"benar;", true},
+		{"salah;", false},
+		// {"9 > 2 == salah;", "((9 > 2) == salah)"},
+		// {"1 < 2 == benar;", "((1 < 2) == benar)"},
+	}
+
+	for _, tt := range input {
+		lex := lexer.NewLex(tt.in)
+		pars := NewPars(lex)
+		tree := pars.ConstructTree()
+		checkPeekError(t, pars)
+
+		stmnt, ok := tree.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("tree.Statements[0] is not *ast.ExpressionStatement. got: %T", tree.Statements[0])
+		}
+		bool, ok := stmnt.Expression.(*ast.BooleanLiteral)
+		if !ok {
+			t.Fatalf("stmnt.Expression is not *ast.BooleanLiteral. got: %T", stmnt.Expression)
+		}
+
+		if lookUpBool(bool.Token.Literal) != tt.expect {
+			t.Errorf("bool.Token.Literal is not %v. got: %v", tt.expect, lookUpBool(bool.Token.Literal))
+		}
+	}
+}
+
+// func TestOperatorPrecedenceParsing(t *testing.T) {
+// 	tests := []struct {
+// 		input    string
+// 		expected string
 // 	}{
-// 		{"benar;", "benar"},
-// 		{"salah;", "salah"},
-// 		{"salah;", "salah"},
+// 		{
+// 			"1 + (2 + 3) + 4",
+// 			"((1 + (2 + 3)) + 4)",
+// 		},
+// 		{
+// 			"(5 + 5) * 2",
+// 			"((5 + 5) * 2)",
+// 		},
+// 		{
+// 			"2 / (5 + 5)",
+// 			"(2 / (5 + 5))",
+// 		},
+// 		{
+// 			"-(5 + 5)",
+// 			"(-(5 + 5))",
+// 		},
+// 		{
+// 			"!(true == true)",
+// 			"(!(true == true))",
+// 		},
+// 	}
+// 	for _, tt := range tests {
+// 		lex := lexer.NewLex(tt.input)
+// 		pars := NewPars(lex)
+// 		tree := pars.ConstructTree()
+
+// 		stmnt := tree.Statements[0].(*ast.ExpressionStatement)
+// 		exp := stmnt.Expression.(*ast.InfixExpression)
+// 		var buffer bytes.Buffer
+// 		infixTreeToString(exp, &buffer)
+// 		if buffer.String() != tt.expected {
+// 			t.Fatalf("buffer.String() is not %s. got: %s", tt.expected, buffer.String())
+// 		}
 // 	}
 // }
 
@@ -317,48 +371,31 @@ func checkIntegerLiteral(t *testing.T, il ast.Expression, expect int) bool {
 	return true
 }
 
-func InfixTreeToString(exp *ast.InfixExpression) string {
-	var buffer bytes.Buffer
+// helper function to turn infix tree into readable string
+func infixTreeToString(exp *ast.InfixExpression, buffer *bytes.Buffer) {
 	buffer.WriteString("(")
 	le, ok := exp.Left.(*ast.InfixExpression)
 	if ok {
-		recursiveInfix(le, &buffer)
+		infixTreeToString(le, buffer)
 	} else {
-		// TODO: what if left is *ast.PrefixExpression?
-		left := exp.Left.(*ast.IntegerLiteral)
-		buffer.WriteString(left.Token.Literal)
-		buffer.WriteString(exp.Operator)
+		buffer.WriteString(exp.Left.TokenLiteral())
 	}
+
+	buffer.WriteString(" " + exp.Operator + " ")
 
 	re, k := exp.Right.(*ast.InfixExpression)
 	if k {
-		recursiveInfix(re, &buffer)
+		infixTreeToString(re, buffer)
 	} else {
-		// TODO: what if left is *ast.PrefixExpression?
-		right := exp.Left.(*ast.IntegerLiteral)
-		buffer.WriteString(right.Token.Literal)
-		buffer.WriteString(")")
+		buffer.WriteString(exp.Right.TokenLiteral())
 	}
-	return buffer.String()
+	buffer.WriteString(")")
 }
 
-func recursiveInfix(exp *ast.InfixExpression, buffer *bytes.Buffer) {
-	buffer.WriteString("(")
-	le, ok := exp.Left.(*ast.InfixExpression)
-	if ok {
-		recursiveInfix(le, buffer)
+func lookUpBool(lit string) bool {
+	if lit == "benar" {
+		return true
 	} else {
-		left := exp.Left.(*ast.IntegerLiteral)
-		buffer.WriteString(left.Token.Literal)
-		buffer.WriteString(exp.Operator)
-	}
-
-	re, k := exp.Right.(*ast.InfixExpression)
-	if k {
-		recursiveInfix(re, buffer)
-	} else {
-		right := exp.Left.(*ast.IntegerLiteral)
-		buffer.WriteString(right.Token.Literal)
-		buffer.WriteString(")")
+		return false
 	}
 }

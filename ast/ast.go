@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"bytes"
-
 	"github.com/vricap/kusmala/token"
 )
 
@@ -52,14 +50,6 @@ func (bs *BuatStatement) TokenLiteral() string {
 	return bs.Token.Literal
 }
 func (bs *BuatStatement) statementNode() {}
-func (bs *BuatStatement) String() string {
-	var out bytes.Buffer
-	out.WriteString(bs.TokenLiteral() + " ")
-	out.WriteString(bs.Name.String())
-	out.WriteString(" = ")
-
-	return out.String()
-}
 
 type KembalikanStatement struct {
 	Token      token.Token
@@ -95,9 +85,6 @@ func (i *Identifier) TokenLiteral() string {
 	return i.Token.Literal
 }
 func (i *Identifier) expressionNode() {}
-func (i *Identifier) String() string {
-	return i.Value
-}
 
 type IntegerLiteral struct {
 	Token token.Token
@@ -108,9 +95,6 @@ func (il *IntegerLiteral) TokenLiteral() string {
 	return il.Token.Literal
 }
 func (il *IntegerLiteral) expressionNode() {}
-func (il *IntegerLiteral) String() string {
-	return il.Token.Literal
-}
 
 type PrefixExpression struct {
 	Token    token.Token // the prefix token. e.g - or !
@@ -122,11 +106,6 @@ func (pe *PrefixExpression) TokenLiteral() string {
 	return pe.Token.Literal
 }
 func (pe *PrefixExpression) expressionNode() {}
-
-// TODO: see the book on this part
-func (pe *PrefixExpression) String() string {
-	return pe.Token.Literal
-}
 
 type InfixExpression struct {
 	Token    token.Token
@@ -140,11 +119,6 @@ func (ie *InfixExpression) TokenLiteral() string {
 }
 func (ie *InfixExpression) expressionNode() {}
 
-// TODO: see the book on this part
-func (ie *InfixExpression) String() string {
-	return ie.Token.Literal
-}
-
 type BooleanLiteral struct {
 	Token token.Token
 	Value bool
@@ -153,7 +127,4 @@ type BooleanLiteral struct {
 func (bl *BooleanLiteral) TokenLiteral() string {
 	return bl.Token.Literal
 }
-func (bl *BooleanLiteral) ExpressionNode() {}
-func (bl *BooleanLiteral) String() string {
-	return bl.Token.Literal
-}
+func (bl *BooleanLiteral) expressionNode() {}
