@@ -68,6 +68,8 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerPrefix(token.BENAR, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.SALAH, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.LPAREN, pars.parseGroupedExpression)
+	// i decide if-else is a statement and NOT a expression
+	// pars.registerPrefix(token.JIKA, pars.parsJikaExpression)
 
 	// INFIX EXPRESSION
 	pars.infixParsMap = map[token.TokenType]infixParsFunc{}
@@ -106,6 +108,8 @@ func (pars *Parser) parsStatement() ast.Statement {
 		return pars.parsBuatStatement()
 	case token.KEMBALIKAN:
 		return pars.parsKembalikanStatement()
+	case token.JIKA:
+		return pars.parsJikaStatement()
 	default:
 		// since the real statement in the language in only 2 (buat & kembalikan), then other statement must be expression statement
 		return pars.parsExpressionStatement()
@@ -152,6 +156,41 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	}
 	// statemtent.Expression = pars.parsExpression()
 	return statemtent
+}
+
+func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
+	if !pars.expectPeek(token.LPAREN) {
+		pars.peekError(token.LPAREN)
+	}
+	jika := &ast.JikaStatement{
+		Token: pars.currToken,
+	}
+	pars.parsNextToken()
+	pars.parsNextToken()
+	jika.Condition = pars.parsExpression(LOWEST)
+
+	if !pars.expectPeek(token.RPAREN) {
+		pars.peekError(token.RPAREN)
+	}
+	pars.parsNextToken()
+	if !pars.expectPeek(token.LBRACE) {
+		pars.peekError(token.LBRACE)
+	}
+	pars.parsNextToken()
+	pars.parsNextToken()
+	jika.JikaBlock = pars.parsBlockStatement()
+	return jika
+}
+
+func (pars *Parser) parsBlockStatement() *ast.BlockStatement {
+	stmnt := &ast.BlockStatement{
+		Token: pars.currToken,
+	}
+	for pars.currToken.Type != token.RBRACE {
+		stmnt.Statements = append(stmnt.Statements, pars.parsStatement())
+		pars.parsNextToken()
+	}
+	return stmnt
 }
 
 /*******************************************
@@ -257,6 +296,10 @@ func (pars *Parser) parseGroupedExpression() ast.Expression {
 	}
 	return exp
 }
+
+/*******************************************
+*			HELPER METHOD   			   *
+*******************************************/
 
 func (pars *Parser) expectPeek(tok token.TokenType) bool {
 	return pars.peekToken.Type == tok

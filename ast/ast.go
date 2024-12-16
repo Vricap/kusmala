@@ -72,6 +72,28 @@ func (ex *ExpressionStatement) TokenLiteral() string {
 }
 func (ex *ExpressionStatement) statementNode() {}
 
+type BlockStatement struct {
+	Token      token.Token
+	Statements []Statement
+}
+
+func (bs *BlockStatement) TokenLiteral() string {
+	return bs.Token.Literal
+}
+func (bs *BlockStatement) statementNode() {}
+
+type JikaStatement struct {
+	Token        token.Token
+	Condition    Expression
+	JikaBlock    *BlockStatement
+	LainnyaBlock *BlockStatement
+}
+
+func (ie *JikaStatement) TokenLiteral() string {
+	return ie.Token.Literal
+}
+func (ie *JikaStatement) statementNode() {}
+
 /*******************************************
 *			EXPRESSION STRUCT			   *
 *******************************************/

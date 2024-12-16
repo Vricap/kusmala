@@ -8,6 +8,7 @@ import (
 
 	"github.com/vricap/kusmala/ast"
 	"github.com/vricap/kusmala/lexer"
+	"github.com/vricap/kusmala/token"
 )
 
 type test_struct struct {
@@ -29,12 +30,7 @@ var buat_input_test_struct []test_struct = []test_struct{
 func TestBuatStatement(t *testing.T) {
 	input := buat_input
 	test := buat_input_test_struct
-
-	lex := lexer.NewLex(input)
-	pars := NewPars(lex)
-
-	tree := pars.ConstructTree()
-	checkPeekError(t, pars) // check if there error in parsing stage
+	tree := constructTree(t, input)
 
 	if tree == nil {
 		t.Fatal("ParsCode() returned nil")
@@ -83,11 +79,7 @@ var kembalikan_input_test_struct []test_struct = []test_struct{
 func TestKembalikanStatement(t *testing.T) {
 	input := kembalikan_input
 	test := kembalikan_input_test_struct
-
-	lex := lexer.NewLex(input)
-	pars := NewPars(lex)
-	tree := pars.ConstructTree()
-	checkPeekError(t, pars) // check if there error in parsing stage
+	tree := constructTree(t, input)
 
 	if tree == nil {
 		t.Fatal("ConstructTree() returned nil")
@@ -114,12 +106,7 @@ func TestKembalikanStatement(t *testing.T) {
 
 func TestIdentifierExpression(t *testing.T) {
 	input := "foo;"
-
-	lex := lexer.NewLex(input)
-	pars := NewPars(lex)
-
-	tree := pars.ConstructTree()
-	checkPeekError(t, pars)
+	tree := constructTree(t, input)
 
 	if len(tree.Statements) != 1 {
 		t.Fatalf("Tree has not enough statements. got: %d", len(tree.Statements))
@@ -130,6 +117,7 @@ func TestIdentifierExpression(t *testing.T) {
 		t.Fatalf("tree.Statements[0] is not *ast.ExpressionStatement. got: %T", tree.Statements[0])
 	}
 
+	// TODO: use the helper function below
 	ident, ok := statement.Expression.(*ast.Identifier)
 	if !ok {
 		t.Fatalf("statement.Expression is not *ast.Identifier. got: %T", statement.Expression)
@@ -144,11 +132,7 @@ func TestIdentifierExpression(t *testing.T) {
 
 func TestIntegerLiteralExpression(t *testing.T) {
 	input := "1;"
-	lex := lexer.NewLex(input)
-	pars := NewPars(lex)
-
-	tree := pars.ConstructTree()
-	checkPeekError(t, pars)
+	tree := constructTree(t, input)
 
 	if len(tree.Statements) != 1 {
 		t.Fatalf("Tree has not enough statement. got: %d", len(tree.Statements))
@@ -183,11 +167,7 @@ func TestPrefixExpression(t *testing.T) {
 		{operator: "!", integer: 5},
 		{operator: "-", integer: 15},
 	}
-
-	lex := lexer.NewLex(input)
-	pars := NewPars(lex)
-	tree := pars.ConstructTree()
-	checkPeekError(t, pars)
+	tree := constructTree(t, input)
 
 	fmt.Printf("%T \n", tree.Statements[0])
 	if len(tree.Statements) != 2 {
@@ -242,10 +222,7 @@ func TestInfinixExpression(t *testing.T) {
 	}
 
 	for _, tt := range infixTest {
-		lex := lexer.NewLex(tt.in)
-		pars := NewPars(lex)
-		tree := pars.ConstructTree()
-		checkPeekError(t, pars)
+		tree := constructTree(t, tt.in)
 
 		if len(tree.Statements) != 1 {
 			t.Fatalf("len(tree.Statements) is not 1. got: %d", len(tree.Statements))
@@ -280,10 +257,7 @@ func TestBooleanLiteral(t *testing.T) {
 	}
 
 	for _, tt := range input {
-		lex := lexer.NewLex(tt.in)
-		pars := NewPars(lex)
-		tree := pars.ConstructTree()
-		checkPeekError(t, pars)
+		tree := constructTree(t, tt.in)
 
 		stmnt, ok := tree.Statements[0].(*ast.ExpressionStatement)
 		if !ok {
@@ -327,9 +301,7 @@ func TestBooleanLiteral(t *testing.T) {
 // 		},
 // 	}
 // 	for _, tt := range tests {
-// 		lex := lexer.NewLex(tt.input)
-// 		pars := NewPars(lex)
-// 		tree := pars.ConstructTree()
+// 		tree := constructTree(t, tt.input)
 
 // 		stmnt := tree.Statements[0].(*ast.ExpressionStatement)
 // 		exp := stmnt.Expression.(*ast.InfixExpression)
@@ -340,6 +312,49 @@ func TestBooleanLiteral(t *testing.T) {
 // 		}
 // 	}
 // }
+
+func TestJikaStatement(t *testing.T) {
+	// input := "jika(x > y) {y} lainnya {x}"
+	input := "jika(x > y) {y}"
+	tree := constructTree(t, input)
+
+	if len(tree.Statements) != 1 {
+		t.Fatalf("len(tree.Statements) not 1. got: %d", len(tree.Statements))
+	}
+	stmnt, ok := tree.Statements[0].(*ast.JikaStatement)
+	if stmnt.Token.Type != token.JIKA {
+		t.Fatalf("stmnt.Token.Type is not JIKA. got: %s", stmnt.Token.Literal)
+	}
+	if !ok {
+		t.Fatalf("tree.Statements[0] is not *ast.JikaStatement. got: %T", tree.Statements[0])
+	}
+	cond, ok := stmnt.Condition.(*ast.InfixExpression)
+	if !ok {
+		t.Fatalf("stmnt.Condition is not *ast.InfixExpression. got: %T", stmnt.Condition)
+	}
+
+	var buffer bytes.Buffer
+	infixTreeToString(cond, &buffer)
+	if buffer.String() != "(x > y)" {
+		t.Fatalf("buffer.String() is not '(x > y). got: %s'", buffer.String())
+	}
+
+	jikaBlock, ok := stmnt.JikaBlock.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmnt.JikaBlock.Statements[0] is not *ast.ExpressionStatement. got: %T", stmnt.JikaBlock.Statements[0])
+	}
+	checkIdent(t, jikaBlock.Expression, "y")
+
+	// lainnyaBlock, ok := stmnt.LainnyaBlock.Statements[0].(*ast.ExpressionStatement)
+	// if !ok {
+	// 	t.Fatalf("stmnt.LainnyaBlock.Statements[0] is not *ast.BlockStatement. got: %T", stmnt.LainnyaBlock.Statements[0])
+	// }
+	// checkIdent(t, lainnyaBlock.Expression, "x")
+}
+
+/*******************************************
+*			HELPER FUNCTION 			   *
+*******************************************/
 
 func checkPeekError(t *testing.T, pars *Parser) {
 	errors := pars.errors
@@ -371,8 +386,19 @@ func checkIntegerLiteral(t *testing.T, il ast.Expression, expect int) bool {
 	return true
 }
 
+func checkIdent(t *testing.T, exp ast.Expression, lit string) {
+	ident, ok := exp.(*ast.Identifier)
+	if !ok {
+		t.Fatalf("exp is not *ast.Identifie. got: %T", exp)
+	}
+	if ident.Token.Literal != lit {
+		t.Fatalf("ident.Token.Literal is not %s. got: %s", lit, ident.Token.Literal)
+	}
+}
+
 // helper function to turn infix tree into readable string
-func infixTreeToString(exp *ast.InfixExpression, buffer *bytes.Buffer) {
+func infixTreeToString(e ast.Expression, buffer *bytes.Buffer) {
+	exp := e.(*ast.InfixExpression)
 	buffer.WriteString("(")
 	le, ok := exp.Left.(*ast.InfixExpression)
 	if ok {
@@ -398,4 +424,12 @@ func lookUpBool(lit string) bool {
 	} else {
 		return false
 	}
+}
+
+func constructTree(t *testing.T, input string) *ast.Tree {
+	lex := lexer.NewLex(input)
+	pars := NewPars(lex)
+	tree := pars.ConstructTree()
+	checkPeekError(t, pars) // check if there error in parsing stage
+	return tree
 }
