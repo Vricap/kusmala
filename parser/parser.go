@@ -150,7 +150,7 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 		Token: pars.currToken,
 	}
 
-	// we skip the expression for now
+	// TODO: we skip the expression for now
 	for pars.currToken.Type != token.SEMICOLON {
 		pars.parsNextToken()
 	}
@@ -179,6 +179,14 @@ func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
 	pars.parsNextToken()
 	pars.parsNextToken()
 	jika.JikaBlock = pars.parsBlockStatement()
+
+	// TODO: this is stupid
+	if pars.expectPeek(token.LAINNYA) {
+		pars.parsNextToken()
+		pars.parsNextToken()
+		pars.parsNextToken()
+		jika.LainnyaBlock = pars.parsBlockStatement()
+	}
 	return jika
 }
 

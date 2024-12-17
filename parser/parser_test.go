@@ -314,8 +314,7 @@ func TestBooleanLiteral(t *testing.T) {
 // }
 
 func TestJikaStatement(t *testing.T) {
-	// input := "jika(x > y) {y} lainnya {x}"
-	input := "jika(x > y) {y}"
+	input := `jika(x > y) {y} lainnya {x}`
 	tree := constructTree(t, input)
 
 	if len(tree.Statements) != 1 {
@@ -345,11 +344,11 @@ func TestJikaStatement(t *testing.T) {
 	}
 	checkIdent(t, jikaBlock.Expression, "y")
 
-	// lainnyaBlock, ok := stmnt.LainnyaBlock.Statements[0].(*ast.ExpressionStatement)
-	// if !ok {
-	// 	t.Fatalf("stmnt.LainnyaBlock.Statements[0] is not *ast.BlockStatement. got: %T", stmnt.LainnyaBlock.Statements[0])
-	// }
-	// checkIdent(t, lainnyaBlock.Expression, "x")
+	lainnyaBlock, ok := stmnt.LainnyaBlock.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("stmnt.LainnyaBlock.Statements[0] is not *ast.BlockStatement. got: %T", stmnt.LainnyaBlock.Statements[0])
+	}
+	checkIdent(t, lainnyaBlock.Expression, "x")
 }
 
 /*******************************************
