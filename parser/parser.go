@@ -135,13 +135,19 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 		// pars.Errors("Tanda '=' tidak ditemukan!")
 		pars.peekError(token.ASSIGN)
 	}
+	pars.parsNextToken()
 
-	// we skip the expression for now
-	for pars.currToken.Type != token.SEMICOLON {
-		pars.parsNextToken()
+	_, ok := pars.prefixParsMap[pars.peekToken.Type]
+	if !ok {
+		pars.errors = append(pars.errors, fmt.Sprintf("Expression or Value is expected. got %s instead.", pars.peekToken.Literal))
 	}
+	pars.parsNextToken()
+	statement.Expression = pars.parsExpression(LOWEST)
+	pars.parsNextToken()
 
-	// statement.Expression = pars.parsExpression()
+	// TODO: we skip the expression for now
+	// for pars.currToken.Type != token.SEMICOLON {
+	// }
 	return statement
 }
 

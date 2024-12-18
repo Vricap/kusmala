@@ -17,7 +17,7 @@ type test_struct struct {
 
 // buat statement test
 var buat_input string = `
-buat x = 1;
+buat x = -1;
 buat y = 2;
 buat buzz = 12345;
 `
@@ -314,7 +314,7 @@ func TestBooleanLiteral(t *testing.T) {
 // }
 
 func TestJikaStatement(t *testing.T) {
-	input := `jika(x > y) {y} lainnya {x}`
+	input := `jika(x > y) {y} lainnya {buat x = 1 + 2 * 2;}`
 	tree := constructTree(t, input)
 
 	if len(tree.Statements) != 1 {
@@ -344,11 +344,33 @@ func TestJikaStatement(t *testing.T) {
 	}
 	checkIdent(t, jikaBlock.Expression, "y")
 
-	lainnyaBlock, ok := stmnt.LainnyaBlock.Statements[0].(*ast.ExpressionStatement)
+	lainnyaBlock, ok := stmnt.LainnyaBlock.Statements[0].(*ast.BuatStatement)
 	if !ok {
-		t.Fatalf("stmnt.LainnyaBlock.Statements[0] is not *ast.BlockStatement. got: %T", stmnt.LainnyaBlock.Statements[0])
+		t.Fatalf("stmnt.LainnyaBlock.Statements[0] is not *ast.BuatStatementt. got: %T", stmnt.LainnyaBlock.Statements[0])
 	}
-	checkIdent(t, lainnyaBlock.Expression, "x")
+	if lainnyaBlock.Token.Type != token.BUAT {
+		t.Fatalf("lainnyaBlock.Token.Type is not token.BUAT. got: %v", lainnyaBlock.Token.Type)
+	}
+	if lainnyaBlock.Name.Value != "x" {
+		t.Fatalf("lainnyaBlock.Name.Value is not 'x'. got: %s", lainnyaBlock.Name.Value)
+	}
+	e, ok := lainnyaBlock.Expression.(*ast.InfixExpression)
+	if !ok {
+		t.Fatalf("lainnyaBlock.Expression is not *ast.InfixExpression, got: %T", lainnyaBlock.Expression)
+	}
+
+	var buff bytes.Buffer
+	infixTreeToString(e, &buff)
+	if buff.String() != "(1 + (2 * 2))" {
+		t.Fatalf("buffer.String() is not '(1 + (2 * 2))'. got: %s", buffer.String())
+	}
+
+	// if !checkIntegerLiteral(t, lainnyaBlock.Expression, 1) {
+	// 	return
+	// }
+
+	// checkIdent(t, lainnyaBlock.Expression, "x")
+
 }
 
 /*******************************************
