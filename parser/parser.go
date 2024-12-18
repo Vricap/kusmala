@@ -68,6 +68,7 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerPrefix(token.BENAR, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.SALAH, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.LPAREN, pars.parseGroupedExpression)
+	pars.registerPrefix(token.FUNGSI, pars.parsFungsiLiteral)
 	// i decide if-else is a statement and NOT a expression
 	// pars.registerPrefix(token.JIKA, pars.parsJikaExpression)
 
@@ -309,6 +310,40 @@ func (pars *Parser) parseGroupedExpression() ast.Expression {
 		return nil
 	}
 	return exp
+}
+
+func (pars *Parser) parsFungsiLiteral() ast.Expression {
+	fung := &ast.FungsiExpression{
+		Token: pars.currToken,
+	}
+	if !pars.expectPeek(token.LPAREN) {
+		pars.peekError(token.LPAREN)
+	}
+	pars.parsNextToken()
+	pars.parsNextToken()
+	fung.Params = pars.parsParams()
+
+	if !pars.expectPeek(token.LBRACE) {
+		pars.peekError(token.LBRACE)
+	}
+	pars.parsNextToken()
+	pars.parsNextToken()
+	fung.Body = pars.parsBlockStatement()
+	return fung
+}
+
+func (pars *Parser) parsParams() []*ast.Identifier {
+	iden := []*ast.Identifier{}
+	// FIXME: what if there are no RPAREN? it might endup in infinite loop
+	for pars.currToken.Type != token.RPAREN {
+		if pars.currToken.Type == token.COMMA {
+			pars.parsNextToken()
+			continue
+		}
+		iden = append(iden, &ast.Identifier{Token: pars.currToken, Value: pars.currToken.Literal})
+		pars.parsNextToken()
+	}
+	return iden
 }
 
 /*******************************************

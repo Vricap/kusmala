@@ -150,3 +150,14 @@ func (bl *BooleanLiteral) TokenLiteral() string {
 	return bl.Token.Literal
 }
 func (bl *BooleanLiteral) expressionNode() {}
+
+type FungsiExpression struct {
+	Token  token.Token
+	Params []*Identifier
+	Body   *BlockStatement
+}
+
+func (fe *FungsiExpression) TokenLiteral() string {
+	return fe.Token.Literal
+}
+func (fe *FungsiExpression) expressionNode() {}

@@ -373,6 +373,41 @@ func TestJikaStatement(t *testing.T) {
 
 }
 
+func TestFungsiLiteral(t *testing.T) {
+	input := `fungsi(x, y) { x + y; }`
+	tree := constructTree(t, input)
+
+	if len(tree.Statements) != 1 {
+		t.Fatalf("len(tree.Statements) is not 1. got: %d", len(tree.Statements))
+	}
+	stmnt, ok := tree.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("tree.Statements[0] is not *ast.ExpressionStatement. got: %T", tree.Statements[0])
+	}
+	expr, ok := stmnt.Expression.(*ast.FungsiExpression)
+	if !ok {
+		t.Fatalf("stmnt.Expression is not *ast.FungsiExpression. got: %T", stmnt.Expression)
+	}
+
+	checkIdent(t, expr.Params[0], "x")
+	checkIdent(t, expr.Params[1], "y")
+
+	if len(expr.Body.Statements) != 1 {
+		t.Fatalf("len(expr.Body.Statements) is not 1. got: %d", len(expr.Body.Statements))
+	}
+
+	body, ok := expr.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("expr.Body.Statements[0] is not *ast.ExpressionStatement. got: %T", expr.Body.Statements[0])
+	}
+
+	var buffer bytes.Buffer
+	infixTreeToString(body.Expression, &buffer)
+	if buffer.String() != "(x + y)" {
+		t.Fatalf("buffer.String() is not '(x + y)'. got: %s", buffer.String())
+	}
+}
+
 /*******************************************
 *			HELPER FUNCTION 			   *
 *******************************************/
