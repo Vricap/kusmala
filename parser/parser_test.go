@@ -425,7 +425,7 @@ func TestCallExpression(t *testing.T) {
 *******************************************/
 
 func checkPeekError(t *testing.T, pars *Parser) {
-	errors := pars.errors
+	errors := pars.Errors
 
 	if len(errors) == 0 {
 		return

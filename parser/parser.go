@@ -40,7 +40,7 @@ var precedence map[token.TokenType]int = map[token.TokenType]int{
 
 type Parser struct {
 	lex    *lexer.Lexer
-	errors []string
+	Errors []string
 
 	currToken token.Token
 	peekToken token.Token
@@ -53,7 +53,7 @@ type Parser struct {
 func NewPars(lex *lexer.Lexer) *Parser {
 	pars := &Parser{
 		lex:    lex,
-		errors: []string{},
+		Errors: []string{},
 	}
 
 	// call twice so currToken point to first token
@@ -142,7 +142,7 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 
 	_, ok := pars.prefixParsMap[pars.peekToken.Type]
 	if !ok {
-		pars.errors = append(pars.errors, fmt.Sprintf("Expression or Value is expected. got %s instead.", pars.peekToken.Literal))
+		pars.Errors = append(pars.Errors, fmt.Sprintf("Expression or Value is expected. got %s instead.", pars.peekToken.Literal))
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)
@@ -157,7 +157,7 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 
 	_, ok := pars.prefixParsMap[pars.peekToken.Type]
 	if !ok {
-		pars.errors = append(pars.errors, fmt.Sprintf("Expression or Value is expected. got %s instead.", pars.peekToken.Literal))
+		pars.Errors = append(pars.Errors, fmt.Sprintf("Expression or Value is expected. got %s instead.", pars.peekToken.Literal))
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)
@@ -226,7 +226,7 @@ func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 func (pars *Parser) parsExpression(precedence int) ast.Expression {
 	prefix := pars.prefixParsMap[pars.currToken.Type] // check if currToken have function assosiated with that
 	if prefix == nil {
-		pars.errors = append(pars.errors, fmt.Sprintf("There's not function assosiated with %v", pars.currToken.Type))
+		pars.Errors = append(pars.Errors, fmt.Sprintf("There's not function assosiated with %v", pars.currToken.Type))
 		return nil
 	}
 	leftExp := prefix() // if so, call it
@@ -252,7 +252,7 @@ func (pars *Parser) parsIntegerLiteral() ast.Expression {
 	literal, err := strconv.Atoi(pars.currToken.Literal)
 	if err != nil {
 		msg := fmt.Sprintf("could not parse literal: %s to integer", pars.currToken.Literal)
-		pars.errors = append(pars.errors, msg)
+		pars.Errors = append(pars.Errors, msg)
 		return nil
 	}
 	int := &ast.IntegerLiteral{
@@ -346,8 +346,9 @@ func (pars *Parser) parsParams() []*ast.Identifier {
 	return iden
 }
 
-func (pars *Parser) parsCallExpression(function ast.Expression) ast.Expression {
-	ce := &ast.CallExpression{Token: pars.currToken, Function: function}
+// add(1, 2 * 3, 1 - 2)`
+func (pars *Parser) parsCallExpression(ident ast.Expression) ast.Expression {
+	ce := &ast.CallExpression{Token: pars.currToken, Function: ident}
 	pars.parsNextToken()
 	ce.Arguments = pars.parsArguments()
 
@@ -379,7 +380,7 @@ func (pars *Parser) expectPeek(tok token.TokenType) bool {
 
 func (pars *Parser) peekError(expectTok token.TokenType) {
 	msg := fmt.Sprintf("Expected next token is %s, but got %s", expectTok, pars.peekToken)
-	pars.errors = append(pars.errors, msg)
+	pars.Errors = append(pars.Errors, msg)
 }
 
 // register the token type to the eiter prefixParsFunc or infixParsFunc function type

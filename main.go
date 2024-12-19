@@ -16,5 +16,5 @@ func main() {
 
 	fmt.Printf("Halo %s! Ini adalah bahasa pemrograman KUSMALA!\n", user.Username)
 	fmt.Println("Silahkan untuk mengetik perintah.")
-	repl.Start(os.Stdin)
+	repl.Start(os.Stdin, os.Stdout)
 }
