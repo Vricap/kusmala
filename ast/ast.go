@@ -161,3 +161,14 @@ func (fe *FungsiExpression) TokenLiteral() string {
 	return fe.Token.Literal
 }
 func (fe *FungsiExpression) expressionNode() {}
+
+type CallExpression struct {
+	Token     token.Token // the '('
+	Function  Expression  // the ident to the function or FungsiExpression (literal)
+	Arguments []Expression
+}
+
+func (ce *CallExpression) TokenLiteral() string {
+	return ce.Token.Literal
+}
+func (ce *CallExpression) expressionNode() {}

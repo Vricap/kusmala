@@ -237,11 +237,7 @@ func TestInfinixExpression(t *testing.T) {
 		if !ok {
 			t.Fatalf("statement.Expression is not *ast.InfixExpression. got: %T", statement.Expression)
 		}
-		var buffer bytes.Buffer
-		infixTreeToString(infixExpr, &buffer)
-		if buffer.String() != tt.expect {
-			t.Fatalf("buffer.String() is not %s. got: %s", tt.expect, buffer.String())
-		}
+		checkInfix(infixExpr, tt.expect)
 	}
 }
 
@@ -332,11 +328,7 @@ func TestJikaStatement(t *testing.T) {
 		t.Fatalf("stmnt.Condition is not *ast.InfixExpression. got: %T", stmnt.Condition)
 	}
 
-	var buffer bytes.Buffer
-	infixTreeToString(cond, &buffer)
-	if buffer.String() != "(x > y)" {
-		t.Fatalf("buffer.String() is not '(x > y). got: %s'", buffer.String())
-	}
+	checkInfix(cond, "(x > y)")
 
 	jikaBlock, ok := stmnt.JikaBlock.Statements[0].(*ast.ExpressionStatement)
 	if !ok {
@@ -359,11 +351,7 @@ func TestJikaStatement(t *testing.T) {
 		t.Fatalf("lainnyaBlock.Expression is not *ast.InfixExpression, got: %T", lainnyaBlock.Expression)
 	}
 
-	var buff bytes.Buffer
-	infixTreeToString(e, &buff)
-	if buff.String() != "(1 + (2 * 2))" {
-		t.Fatalf("buffer.String() is not '(1 + (2 * 2))'. got: %s", buffer.String())
-	}
+	checkInfix(e, "(1 + (2 * 2))")
 
 	// if !checkIntegerLiteral(t, lainnyaBlock.Expression, 1) {
 	// 	return
@@ -401,11 +389,31 @@ func TestFungsiLiteral(t *testing.T) {
 		t.Fatalf("expr.Body.Statements[0] is not *ast.ExpressionStatement. got: %T", expr.Body.Statements[0])
 	}
 
-	var buffer bytes.Buffer
-	infixTreeToString(body.Expression, &buffer)
-	if buffer.String() != "(x + y)" {
-		t.Fatalf("buffer.String() is not '(x + y)'. got: %s", buffer.String())
+	checkInfix(body.Expression, "(x + y)")
+}
+
+func TestCallExpression(t *testing.T) {
+	input := `add(1, 2 * 3, 1 - 2)`
+	tree := constructTree(t, input)
+
+	if len(tree.Statements) != 1 {
+		t.Fatalf("len(tree.Statements) is not 1. got: %d", len(tree.Statements))
 	}
+
+	stmnt, ok := tree.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("tree.Statements[0] is not *ast.ExpressionStatement. got: %T", tree.Statements[0])
+	}
+	expr, ok := stmnt.Expression.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf("stmnt.Expression is not *ast.CallExpression. got: %T", stmnt.Expression)
+	}
+	checkIdent(t, expr.Function, "add")
+	if !checkIntegerLiteral(t, expr.Arguments[0], 1) {
+		return
+	}
+	checkInfix(expr.Arguments[1], "(2 * 3)")
+	checkInfix(expr.Arguments[2], "(1 - 2)")
 }
 
 /*******************************************
@@ -450,6 +458,12 @@ func checkIdent(t *testing.T, exp ast.Expression, lit string) {
 	if ident.Token.Literal != lit {
 		t.Fatalf("ident.Token.Literal is not %s. got: %s", lit, ident.Token.Literal)
 	}
+}
+
+func checkInfix(e ast.Expression, expect string) bool {
+	var buffer bytes.Buffer
+	infixTreeToString(e, &buffer)
+	return buffer.String() == expect
 }
 
 // helper function to turn infix tree into readable string

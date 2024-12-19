@@ -35,6 +35,7 @@ var precedence map[token.TokenType]int = map[token.TokenType]int{
 	token.MINUS:      SUM,
 	token.SLASH:      PRODUCT,
 	token.ASTERISK:   PRODUCT,
+	token.LPAREN:     CALL,
 }
 
 type Parser struct {
@@ -82,6 +83,7 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerInfix(token.GT, pars.parsInfix)
 	pars.registerInfix(token.SAMA, pars.parsInfix)
 	pars.registerInfix(token.TIDAK_SAMA, pars.parsInfix)
+	pars.registerInfix(token.LPAREN, pars.parsCallExpression)
 	return pars
 }
 
@@ -344,6 +346,29 @@ func (pars *Parser) parsParams() []*ast.Identifier {
 		pars.parsNextToken()
 	}
 	return iden
+}
+
+func (pars *Parser) parsCallExpression(function ast.Expression) ast.Expression {
+	ce := &ast.CallExpression{Token: pars.currToken, Function: function}
+	pars.parsNextToken()
+	ce.Arguments = pars.parsArguments()
+
+	return ce
+}
+
+func (pars *Parser) parsArguments() []ast.Expression {
+	expr := []ast.Expression{}
+
+	// FIXME: what if there are no RPAREN???
+	for pars.currToken.Type != token.RPAREN {
+		if pars.currToken.Type == token.COMMA {
+			pars.parsNextToken()
+			continue
+		}
+		expr = append(expr, pars.parsExpression(LOWEST))
+		pars.parsNextToken()
+	}
+	return expr
 }
 
 /*******************************************
