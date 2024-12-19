@@ -68,12 +68,16 @@ var kembalikan_input string = `
 kembalikan 5;
 kembalikan 10;
 kembalikan add(15);
+kembalikan -1;
+kembalikan !benar;
 `
 
 var kembalikan_input_test_struct []test_struct = []test_struct{
 	{expected: "5"},
 	{expected: "10"},
 	{expected: "add(15)"},
+	{expected: "-1"},
+	{expected: "!benar"},
 }
 
 func TestKembalikanStatement(t *testing.T) {
@@ -84,8 +88,8 @@ func TestKembalikanStatement(t *testing.T) {
 	if tree == nil {
 		t.Fatal("ConstructTree() returned nil")
 	}
-	if len(tree.Statements) != 3 {
-		t.Fatalf("tree.Statements does not contain 3 statement. got: %d", len(tree.Statements))
+	if len(tree.Statements) != 5 {
+		t.Fatalf("tree.Statements does not contain 5 statement. got: %d", len(tree.Statements))
 	}
 
 	for i, _ := range test {

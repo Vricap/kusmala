@@ -147,24 +147,22 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)
 	pars.parsNextToken()
-
-	// TODO: we skip the expression for now
-	// for pars.currToken.Type != token.SEMICOLON {
-	// }
 	return statement
 }
 
 func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
-	statemtent := &ast.KembalikanStatement{
+	statement := &ast.KembalikanStatement{
 		Token: pars.currToken,
 	}
 
-	// TODO: we skip the expression for now
-	for pars.currToken.Type != token.SEMICOLON {
-		pars.parsNextToken()
+	_, ok := pars.prefixParsMap[pars.peekToken.Type]
+	if !ok {
+		pars.errors = append(pars.errors, fmt.Sprintf("Expression or Value is expected. got %s instead.", pars.peekToken.Literal))
 	}
-	// statemtent.Expression = pars.parsExpression()
-	return statemtent
+	pars.parsNextToken()
+	statement.Expression = pars.parsExpression(LOWEST)
+	pars.parsNextToken()
+	return statement
 }
 
 func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
