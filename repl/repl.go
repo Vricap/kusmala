@@ -6,14 +6,13 @@ import (
 	"io"
 
 	"github.com/vricap/kusmala/lexer"
-	"github.com/vricap/kusmala/token"
+	"github.com/vricap/kusmala/parser"
 )
 
 const PROMPT = ">>"
 
-func Start(input io.Reader) {
-	scanner := bufio.NewScanner(input)
-	// tokSlice := []token.Token{}
+func Start(in io.Reader, out io.Writer) {
+	scanner := bufio.NewScanner(in)
 
 	for {
 		fmt.Printf(PROMPT)
@@ -21,22 +20,23 @@ func Start(input io.Reader) {
 		if !scanned {
 			return
 		}
-		line := scanner.Text()
-		lex := lexer.NewLex(line)
+		input := scanner.Text()
+		lex := lexer.NewLex(input)
+		pars := parser.NewPars(lex)
+		tree := pars.ConstructTree()
 
-		// pars := parser.NewPars(lex)
-		// tree := pars.ConstructTree()
-
-		// for _, s := range tree.Statements {
-		// 	stmt, _ := s.(*ast.ExpressionStatement)
-		// 	s, _ := stmt.Expression.(*ast.InfixExpression)
-		// 	fmt.Println(s)
-		// }
-
-		tok := lex.NextToken()
-		for tok.Type != token.EOF {
-			fmt.Printf("%+v\n", tok)
-			tok = lex.NextToken()
+		if len(pars.Errors) != 0 {
+			printError(pars.Errors, out)
+			continue
 		}
+
+		s := parser.PrintTree(tree.Statements)
+		fmt.Println(s)
+	}
+}
+
+func printError(err []string, out io.Writer) {
+	for _, e := range err {
+		io.WriteString(out, "\t"+e+"\n")
 	}
 }
