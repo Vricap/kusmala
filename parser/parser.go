@@ -68,10 +68,11 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerPrefix(token.MINUS, pars.parsPrefix)
 	pars.registerPrefix(token.BENAR, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.SALAH, pars.parsBooleanLiteral)
-	pars.registerPrefix(token.LPAREN, pars.parseGroupedExpression)
 	pars.registerPrefix(token.FUNGSI, pars.parsFungsiLiteral)
 	// i decide if-else is a statement and NOT a expression
 	// pars.registerPrefix(token.JIKA, pars.parsJikaExpression)
+	// kusmala does not grouped expression... i dont know how to implement it :(
+	// pars.registerPrefix(token.LPAREN, pars.parseGroupedExpression)
 
 	// INFIX EXPRESSION
 	pars.infixParsMap = map[token.TokenType]infixParsFunc{}
@@ -165,14 +166,19 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	return statement
 }
 
+// FIXME: if there are peekError, i have to return nil everytime, if not it endup in some kind of infinite loop. other statement does not do this. find out.
 func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
-	if !pars.expectPeek(token.LPAREN) {
-		pars.peekError(token.LPAREN)
-	}
 	jika := &ast.JikaStatement{
 		Token: pars.currToken,
 	}
+
+	if !pars.expectPeek(token.LPAREN) {
+		pars.peekError(token.LPAREN)
+	}
 	pars.parsNextToken()
+	if pars.expectPeek(token.RPAREN) {
+		pars.Errors = append(pars.Errors, "Kondisi tidak boleh kosong!")
+	}
 	pars.parsNextToken()
 	jika.Condition = pars.parsExpression(LOWEST)
 
@@ -190,6 +196,9 @@ func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
 	// TODO: this is stupid
 	if pars.expectPeek(token.LAINNYA) {
 		pars.parsNextToken()
+		if !pars.expectPeek(token.LBRACE) {
+			pars.peekError(token.LBRACE)
+		}
 		pars.parsNextToken()
 		pars.parsNextToken()
 		jika.LainnyaBlock = pars.parsBlockStatement()
@@ -202,8 +211,15 @@ func (pars *Parser) parsBlockStatement() *ast.BlockStatement {
 		Token: pars.currToken,
 	}
 	for pars.currToken.Type != token.RBRACE {
+		if pars.currToken.Type == token.EOF {
+			break
+		}
 		stmnt.Statements = append(stmnt.Statements, pars.parsStatement())
 		pars.parsNextToken()
+	}
+	// TODO: quick hack
+	if !pars.expectCurr(token.RBRACE) {
+		pars.currError(token.RBRACE)
 	}
 	return stmnt
 }
@@ -275,10 +291,6 @@ func (pars *Parser) parsBooleanLiteral() ast.Expression {
 }
 
 func (pars *Parser) parsPrefix() ast.Expression {
-	// if !pars.expectPeek(token.BILBUL) {
-	// 	pars.peekError(token.BILBUL)
-	// 	return nil
-	// }
 	prefix := &ast.PrefixExpression{
 		Token:    pars.currToken,
 		Operator: pars.currToken.Literal,
@@ -303,26 +315,30 @@ func (pars *Parser) parsInfix(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (pars *Parser) parseGroupedExpression() ast.Expression {
-	pars.parsNextToken()
-	exp := pars.parsExpression(LOWEST)
-	if !pars.expectPeek(token.RPAREN) {
-		return nil
-	}
-	return exp
-}
+// func (pars *Parser) parseGroupedExpression() ast.Expression {
+// 	pars.parsNextToken()
+// 	exp := pars.parsExpression(LOWEST)
+// 	if !pars.expectPeek(token.RPAREN) {
+// 		return nil
+// 	}
+// 	return exp
+// }
 
 func (pars *Parser) parsFungsiLiteral() ast.Expression {
 	fung := &ast.FungsiExpression{
 		Token: pars.currToken,
 	}
+
 	if !pars.expectPeek(token.LPAREN) {
 		pars.peekError(token.LPAREN)
 	}
 	pars.parsNextToken()
-	pars.parsNextToken()
-	fung.Params = pars.parsParams()
-
+	if pars.expectPeek(token.RPAREN) {
+		pars.parsNextToken()
+	} else {
+		pars.parsNextToken()
+		fung.Params = pars.parsParams()
+	}
 	if !pars.expectPeek(token.LBRACE) {
 		pars.peekError(token.LBRACE)
 	}
@@ -334,14 +350,21 @@ func (pars *Parser) parsFungsiLiteral() ast.Expression {
 
 func (pars *Parser) parsParams() []*ast.Identifier {
 	iden := []*ast.Identifier{}
-	// FIXME: what if there are no RPAREN? it might endup in infinite loop
+
 	for pars.currToken.Type != token.RPAREN {
 		if pars.currToken.Type == token.COMMA {
 			pars.parsNextToken()
 			continue
 		}
 		iden = append(iden, &ast.Identifier{Token: pars.currToken, Value: pars.currToken.Literal})
+		if pars.currToken.Type == token.EOF {
+			break
+		}
 		pars.parsNextToken()
+	}
+	// TODO: quick hack
+	if !pars.expectCurr(token.RPAREN) {
+		pars.currError(token.RPAREN)
 	}
 	return iden
 }
@@ -358,14 +381,20 @@ func (pars *Parser) parsCallExpression(ident ast.Expression) ast.Expression {
 func (pars *Parser) parsArguments() []ast.Expression {
 	expr := []ast.Expression{}
 
-	// FIXME: what if there are no RPAREN???
 	for pars.currToken.Type != token.RPAREN {
 		if pars.currToken.Type == token.COMMA {
 			pars.parsNextToken()
 			continue
 		}
+		if pars.currToken.Type == token.EOF {
+			break
+		}
 		expr = append(expr, pars.parsExpression(LOWEST))
 		pars.parsNextToken()
+	}
+	// TODO: quick hack
+	if !pars.expectCurr(token.RPAREN) {
+		pars.currError(token.RPAREN)
 	}
 	return expr
 }
@@ -378,8 +407,17 @@ func (pars *Parser) expectPeek(tok token.TokenType) bool {
 	return pars.peekToken.Type == tok
 }
 
+func (pars *Parser) expectCurr(tok token.TokenType) bool {
+	return pars.currToken.Type == tok
+}
+
 func (pars *Parser) peekError(expectTok token.TokenType) {
-	msg := fmt.Sprintf("Expected next token is %s, but got %s", expectTok, pars.peekToken)
+	msg := fmt.Sprintf("Token selanjutnya mengharapkan %s, tetapi menemukan %s", expectTok, pars.peekToken)
+	pars.Errors = append(pars.Errors, msg)
+}
+
+func (pars *Parser) currError(expectTok token.TokenType) {
+	msg := fmt.Sprintf("Token sekarang mengharapkan %s, tetapi menemukan %s", expectTok, pars.currToken)
 	pars.Errors = append(pars.Errors, msg)
 }
 
@@ -405,6 +443,20 @@ func (pars *Parser) currPrecedence() int {
 		return LOWEST
 	}
 	return p
+}
+
+func (pars *Parser) skipTokenTo(tok token.TokenType) {
+	for pars.currToken.Type != tok {
+		if pars.currToken.Type == token.EOF {
+			return
+			// EOF_FOUND()
+		}
+		pars.parsNextToken()
+	}
+}
+
+func EOF_FOUND() {
+	panic("EOF ditemukan! Program keluar!")
 }
 
 /*
