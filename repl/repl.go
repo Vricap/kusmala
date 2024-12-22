@@ -9,7 +9,7 @@ import (
 	"github.com/vricap/kusmala/parser"
 )
 
-const PROMPT = ">>"
+const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
@@ -30,8 +30,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		s := parser.PrintTree(tree.Statements)
-		fmt.Println(s)
+		parser.PrintTree(tree.Statements)
 	}
 }
 
