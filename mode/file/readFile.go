@@ -22,11 +22,11 @@ func Read(arg []string) {
 
 func readFile(path string) *ast.Tree {
 	data, err := os.ReadFile(path)
-	if !isKusmalaFile(path) {
-		log.Fatal("File merupakan bukan file kusmala. File kusmala ektensi '.km'")
-	}
 	if err != nil {
 		log.Fatal(err)
+	}
+	if !isKusmalaFile(path) {
+		log.Fatal("File merupakan bukan file kusmala. File kusmala ektensi '.km'")
 	}
 
 	lex := lexer.NewLex(string(data))
