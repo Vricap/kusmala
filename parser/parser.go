@@ -143,7 +143,7 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 
 	_, ok := pars.prefixParsMap[pars.peekToken.Type]
 	if !ok {
-		pars.Errors = append(pars.Errors, fmt.Sprintf("Expression or Value is expected. got %s instead.", pars.peekToken.Literal))
+		pars.Errors = append(pars.Errors, fmt.Sprintf("Mengharapkan Nilai atau Ekspresi, tetapi mendapatkan %s.", pars.peekToken.Literal))
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)
@@ -158,7 +158,7 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 
 	_, ok := pars.prefixParsMap[pars.peekToken.Type]
 	if !ok {
-		pars.Errors = append(pars.Errors, fmt.Sprintf("Expression or Value is expected. got %s instead.", pars.peekToken.Literal))
+		pars.Errors = append(pars.Errors, fmt.Sprintf("Mengharapkan Nilai atau Ekspresi, tetapi mendapatkan %s.", pars.peekToken.Literal))
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)

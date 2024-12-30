@@ -1,20 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"os/user"
 
-	"github.com/vricap/kusmala/repl"
+	"github.com/vricap/kusmala/mode/file"
+	"github.com/vricap/kusmala/mode/repl"
 )
 
 func main() {
-	user, err := user.Current()
-	if err != nil {
-		panic(err)
+	arg := os.Args
+	if len(arg) > 1 {
+		file.Read(arg)
+	} else {
+		repl.Start(os.Stdin, os.Stdout)
 	}
-
-	fmt.Printf("Halo %s! Ini adalah bahasa pemrograman KUSMALA!\n", user.Username)
-	fmt.Println("Silahkan untuk mengetik perintah.")
-	repl.Start(os.Stdin, os.Stdout)
 }

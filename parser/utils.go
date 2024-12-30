@@ -8,7 +8,9 @@ import (
 	"github.com/vricap/kusmala/ast"
 )
 
-// util function to print the tree nicely
+/*******************************************
+* util function to print the tree nicely   *
+*******************************************/
 func PrintTree(tree []ast.Statement) {
 	fmt.Println("AST_TREE:")
 	space := 1
@@ -174,11 +176,3 @@ func rmBuffNl(b *bytes.Buffer) {
 	c := b.Bytes()
 	b.Truncate(len(c) - 1)
 }
-
-// buat x = 2 - 3 * 4;
-// 2 - 3 * 4 == (2 - (3 * 4))
-// BuatStatement:
-// 		Ident: x
-// 		Infix:
-// 			Left:
-//
