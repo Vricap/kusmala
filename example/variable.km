@@ -1,2 +1,3 @@
-buat satu = 1;
-buat perkalian = satu * 10;
+buat unary = -1;
+buat binary = unary * 10;
+buat kombinasi = 4 + unary * binary
