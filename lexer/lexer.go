@@ -9,10 +9,11 @@ type Lexer struct {
 	pos     int    // current position in the input - point to current char
 	peekPos int    // peek the next of the current position
 	char    byte   // current char under examination
+	Line    int
 }
 
 func NewLex(input string) *Lexer {
-	l := &Lexer{input: input}
+	l := &Lexer{input: input, Line: 1}
 	l.readChar() // so that l.char point to the actual first char in input and not just 0
 	return l
 }
@@ -111,7 +112,12 @@ func (lex *Lexer) readChar() {
 }
 
 func (lex *Lexer) skipWhiteSpace() {
-	for lex.char == ' ' || lex.char == '\t' || lex.char == '\n' || lex.char == '\r' {
+	for lex.char == ' ' || lex.char == '\t' {
+		lex.readChar()
+	}
+
+	for lex.char == '\n' || lex.char == '\r' {
+		lex.Line++
 		lex.readChar()
 	}
 }

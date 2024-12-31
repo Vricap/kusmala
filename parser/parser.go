@@ -126,7 +126,7 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 	}
 	if !pars.expectPeek(token.IDENT) {
 		// pars.Errors("Sebuah buat statement membutuhkan nama!")
-		pars.peekError(token.IDENT)
+		pars.peekError(token.IDENT, pars.lex.Line)
 	}
 
 	pars.parsNextToken() // currToken now have to be point to ident name
@@ -137,7 +137,7 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 
 	if !pars.expectPeek(token.ASSIGN) {
 		// pars.Errors("Tanda '=' tidak ditemukan!")
-		pars.peekError(token.ASSIGN)
+		pars.peekError(token.ASSIGN, pars.lex.Line)
 	}
 	pars.parsNextToken()
 
@@ -166,14 +166,13 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	return statement
 }
 
-// FIXME: if there are peekError, i have to return nil everytime, if not it endup in some kind of infinite loop. other statement does not do this. find out.
 func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
 	jika := &ast.JikaStatement{
 		Token: pars.currToken,
 	}
 
 	if !pars.expectPeek(token.LPAREN) {
-		pars.peekError(token.LPAREN)
+		pars.peekError(token.LPAREN, pars.lex.Line)
 	}
 	pars.parsNextToken()
 	if pars.expectPeek(token.RPAREN) {
@@ -183,11 +182,11 @@ func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
 	jika.Condition = pars.parsExpression(LOWEST)
 
 	if !pars.expectPeek(token.RPAREN) {
-		pars.peekError(token.RPAREN)
+		pars.peekError(token.RPAREN, pars.lex.Line)
 	}
 	pars.parsNextToken()
 	if !pars.expectPeek(token.LBRACE) {
-		pars.peekError(token.LBRACE)
+		pars.peekError(token.LBRACE, pars.lex.Line)
 	}
 	pars.parsNextToken()
 	pars.parsNextToken()
@@ -197,7 +196,7 @@ func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
 	if pars.expectPeek(token.LAINNYA) {
 		pars.parsNextToken()
 		if !pars.expectPeek(token.LBRACE) {
-			pars.peekError(token.LBRACE)
+			pars.peekError(token.LBRACE, pars.lex.Line)
 		}
 		pars.parsNextToken()
 		pars.parsNextToken()
@@ -219,7 +218,7 @@ func (pars *Parser) parsBlockStatement() *ast.BlockStatement {
 	}
 	// TODO: quick hack
 	if !pars.expectCurr(token.RBRACE) {
-		pars.currError(token.RBRACE)
+		pars.currError(token.RBRACE, pars.lex.Line)
 	}
 	return stmnt
 }
@@ -330,7 +329,7 @@ func (pars *Parser) parsFungsiLiteral() ast.Expression {
 	}
 
 	if !pars.expectPeek(token.LPAREN) {
-		pars.peekError(token.LPAREN)
+		pars.peekError(token.LPAREN, pars.lex.Line)
 	}
 	pars.parsNextToken()
 	if pars.expectPeek(token.RPAREN) {
@@ -340,7 +339,7 @@ func (pars *Parser) parsFungsiLiteral() ast.Expression {
 		fung.Params = pars.parsParams()
 	}
 	if !pars.expectPeek(token.LBRACE) {
-		pars.peekError(token.LBRACE)
+		pars.peekError(token.LBRACE, pars.lex.Line)
 	}
 	pars.parsNextToken()
 	pars.parsNextToken()
@@ -364,7 +363,7 @@ func (pars *Parser) parsParams() []*ast.Identifier {
 	}
 	// TODO: quick hack
 	if !pars.expectCurr(token.RPAREN) {
-		pars.currError(token.RPAREN)
+		pars.currError(token.RPAREN, pars.lex.Line)
 	}
 	return iden
 }
@@ -394,7 +393,7 @@ func (pars *Parser) parsArguments() []ast.Expression {
 	}
 	// TODO: quick hack
 	if !pars.expectCurr(token.RPAREN) {
-		pars.currError(token.RPAREN)
+		pars.currError(token.RPAREN, pars.lex.Line)
 	}
 	return expr
 }
@@ -411,13 +410,13 @@ func (pars *Parser) expectCurr(tok token.TokenType) bool {
 	return pars.currToken.Type == tok
 }
 
-func (pars *Parser) peekError(expectTok token.TokenType) {
-	msg := fmt.Sprintf("Token selanjutnya mengharapkan %s, tetapi menemukan %s", expectTok, pars.peekToken)
+func (pars *Parser) peekError(expectTok token.TokenType, l int) {
+	msg := fmt.Sprintf("Error di baris %d: \n\tToken selanjutnya mengharapkan %s, tetapi menemukan %s", l, expectTok, pars.peekToken)
 	pars.Errors = append(pars.Errors, msg)
 }
 
-func (pars *Parser) currError(expectTok token.TokenType) {
-	msg := fmt.Sprintf("Token sekarang mengharapkan %s, tetapi menemukan %s", expectTok, pars.currToken)
+func (pars *Parser) currError(expectTok token.TokenType, l int) {
+	msg := fmt.Sprintf("Error di baris %d: \n\tToken sekarang mengharapkan %s, tetapi menemukan %s", l, expectTok, pars.currToken)
 	pars.Errors = append(pars.Errors, msg)
 }
 
