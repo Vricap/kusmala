@@ -111,14 +111,31 @@ func (lex *Lexer) readChar() {
 	lex.peekPos++
 }
 
+// TODO: quick hack. refactor
 func (lex *Lexer) skipWhiteSpace() {
+	if lex.char == ' ' || lex.char == '\t' {
+		lex.skipSpace()
+	} else if lex.char == '\n' || lex.char == '\r' {
+		lex.skipNewLine()
+	}
+}
+
+func (lex *Lexer) skipSpace() {
 	for lex.char == ' ' || lex.char == '\t' {
 		lex.readChar()
+		if lex.char == '\n' || lex.char == '\r' {
+			lex.skipNewLine()
+		}
 	}
+}
 
+func (lex *Lexer) skipNewLine() {
 	for lex.char == '\n' || lex.char == '\r' {
 		lex.Line++
 		lex.readChar()
+		if lex.char == ' ' || lex.char == '\t' {
+			lex.skipSpace()
+		}
 	}
 }
 

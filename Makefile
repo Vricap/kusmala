@@ -1,6 +1,6 @@
 build:
 	go build -o ./bin/kusmala .
-	./bin/kusmala
+	# ./bin/kusmala
 
 run:
 	go run main.go

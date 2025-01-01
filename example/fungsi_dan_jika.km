@@ -1,0 +1,7 @@
+fungsi(x, y) {	
+	jika(x > y) {
+		kembalikan x;
+	} lainnya {
+		kembalikan y;
+	}
+}
