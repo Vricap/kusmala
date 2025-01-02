@@ -12,7 +12,7 @@ import (
 
 const PROMPT = ">> "
 
-func Start(in io.Reader, out io.Writer) {
+func Start(in io.Reader, out io.Writer, DEV_MODE bool) {
 	user, err := user.Current()
 	if err != nil {
 		panic(err)
@@ -33,6 +33,11 @@ func Start(in io.Reader, out io.Writer) {
 		pars := parser.NewPars(lex)
 		tree := pars.ConstructTree()
 
+		if len(pars.DevErrors) != 0 && DEV_MODE {
+			printDevError(pars.DevErrors, out)
+			continue
+		}
+
 		if len(pars.Errors) != 0 {
 			printParsingError(pars.Errors, out)
 			continue
@@ -43,6 +48,12 @@ func Start(in io.Reader, out io.Writer) {
 }
 
 func printParsingError(err []string, out io.Writer) {
+	for _, e := range err {
+		io.WriteString(out, "\t"+e+"\n")
+	}
+}
+
+func printDevError(err []string, out io.Writer) {
 	for _, e := range err {
 		io.WriteString(out, "\t"+e+"\n")
 	}

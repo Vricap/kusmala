@@ -39,8 +39,9 @@ var precedence map[token.TokenType]int = map[token.TokenType]int{
 }
 
 type Parser struct {
-	lex    *lexer.Lexer
-	Errors []string
+	lex       *lexer.Lexer
+	Errors    []string
+	DevErrors []string
 
 	currToken token.Token
 	peekToken token.Token
@@ -241,7 +242,7 @@ func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 func (pars *Parser) parsExpression(precedence int) ast.Expression {
 	prefix := pars.prefixParsMap[pars.currToken.Type] // check if currToken have function assosiated with that
 	if prefix == nil {
-		pars.Errors = append(pars.Errors, fmt.Sprintf("There's not function assosiated with %v", pars.currToken.Type))
+		pars.DevErrors = append(pars.DevErrors, fmt.Sprintf("There's not function assosiated with %v", pars.currToken.Type))
 		return nil
 	}
 	leftExp := prefix() // if so, call it
@@ -267,7 +268,7 @@ func (pars *Parser) parsIntegerLiteral() ast.Expression {
 	literal, err := strconv.Atoi(pars.currToken.Literal)
 	if err != nil {
 		msg := fmt.Sprintf("could not parse literal: %s to integer", pars.currToken.Literal)
-		pars.Errors = append(pars.Errors, msg)
+		pars.DevErrors = append(pars.DevErrors, msg)
 		return nil
 	}
 	int := &ast.IntegerLiteral{
@@ -411,12 +412,12 @@ func (pars *Parser) expectCurr(tok token.TokenType) bool {
 }
 
 func (pars *Parser) peekError(expectTok token.TokenType, l int) {
-	msg := fmt.Sprintf("Error di baris %d: \n\tToken selanjutnya mengharapkan %s, tetapi menemukan %s", l, expectTok, pars.peekToken)
+	msg := fmt.Sprintf("Error di baris %d: \n\tToken selanjutnya mengharapkan %s, tetapi menemukan '%s'", l, expectTok, pars.peekToken.Literal)
 	pars.Errors = append(pars.Errors, msg)
 }
 
 func (pars *Parser) currError(expectTok token.TokenType, l int) {
-	msg := fmt.Sprintf("Error di baris %d: \n\tToken sekarang mengharapkan %s, tetapi menemukan %s", l, expectTok, pars.currToken)
+	msg := fmt.Sprintf("Error di baris %d: \n\tToken sekarang mengharapkan %s, tetapi menemukan '%s'", l, expectTok, pars.currToken.Literal)
 	pars.Errors = append(pars.Errors, msg)
 }
 
