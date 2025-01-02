@@ -242,7 +242,7 @@ func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 func (pars *Parser) parsExpression(precedence int) ast.Expression {
 	prefix := pars.prefixParsMap[pars.currToken.Type] // check if currToken have function assosiated with that
 	if prefix == nil {
-		pars.DevErrors = append(pars.DevErrors, fmt.Sprintf("There's not function assosiated with %v", pars.currToken.Type))
+		pars.DevErrors = append(pars.DevErrors, fmt.Sprintf("There's not function assosiated with %v, literal: %s", pars.currToken.Type, pars.currToken.Literal))
 		return nil
 	}
 	leftExp := prefix() // if so, call it
