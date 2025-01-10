@@ -242,6 +242,7 @@ func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 func (pars *Parser) parsExpression(precedence int) ast.Expression {
 	prefix := pars.prefixParsMap[pars.currToken.Type] // check if currToken have function assosiated with that
 	if prefix == nil {
+		pars.Errors = append(pars.Errors, fmt.Sprintf("Error di baris %d: \n\tToken tidak diharapkan ditemukan '%s'", pars.lex.Line, pars.currToken.Literal))
 		pars.DevErrors = append(pars.DevErrors, fmt.Sprintf("There's not function assosiated with %v, literal: %s", pars.currToken.Type, pars.currToken.Literal))
 		return nil
 	}
@@ -356,10 +357,10 @@ func (pars *Parser) parsParams() []*ast.Identifier {
 			pars.parsNextToken()
 			continue
 		}
-		iden = append(iden, &ast.Identifier{Token: pars.currToken, Value: pars.currToken.Literal})
 		if pars.currToken.Type == token.EOF {
 			break
 		}
+		iden = append(iden, &ast.Identifier{Token: pars.currToken, Value: pars.currToken.Literal})
 		pars.parsNextToken()
 	}
 	// TODO: quick hack

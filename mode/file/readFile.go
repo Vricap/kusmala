@@ -16,6 +16,8 @@ func Read(arg []string, DEV_MODE bool) {
 		switch arg[2] {
 		case "-tree", "-t":
 			parser.PrintTree(tree.Statements)
+		default:
+			log.Fatal("Argumen tidak diketahui!")
 		}
 	}
 }
@@ -23,7 +25,7 @@ func Read(arg []string, DEV_MODE bool) {
 func readFile(path string, DEV_MODE bool) *ast.Tree {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Mengalami masalah saat membuka file tersebut:\n%s", err)
 	}
 	if !isKusmalaFile(path) {
 		log.Fatal("File merupakan bukan file kusmala. File kusmala ektensi '.km'")
@@ -47,6 +49,7 @@ func isKusmalaFile(n string) bool {
 }
 
 func printParsingError(err []string) {
+	fmt.Println("Pesan error mungkin tidak akurat :)")
 	for _, e := range err {
 		fmt.Println("\t" + e)
 	}

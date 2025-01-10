@@ -7,7 +7,7 @@ import (
 	"github.com/vricap/kusmala/mode/repl"
 )
 
-const DEV_MODE bool = true
+const DEV_MODE bool = false
 
 func main() {
 	arg := os.Args

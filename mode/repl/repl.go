@@ -48,6 +48,7 @@ func Start(in io.Reader, out io.Writer, DEV_MODE bool) {
 }
 
 func printParsingError(err []string, out io.Writer) {
+	fmt.Println("Pesan error mungkin tidak akurat :)")
 	for _, e := range err {
 		io.WriteString(out, "\t"+e+"\n")
 	}
