@@ -6,7 +6,9 @@ import (
 	"io"
 	"os/user"
 
+	"github.com/vricap/kusmala/evaluator"
 	"github.com/vricap/kusmala/lexer"
+	"github.com/vricap/kusmala/object"
 	"github.com/vricap/kusmala/parser"
 )
 
@@ -19,7 +21,7 @@ func Start(in io.Reader, out io.Writer, DEV_MODE bool) {
 	}
 
 	fmt.Printf("Halo %s! Ini adalah bahasa pemrograman KUSMALA!\n", user.Username)
-	fmt.Println("Silahkan untuk mengetik perintah.")
+	fmt.Println("Silahkan untuk mengetik program.")
 	scanner := bufio.NewScanner(in)
 
 	for {
@@ -43,8 +45,17 @@ func Start(in io.Reader, out io.Writer, DEV_MODE bool) {
 			continue
 		}
 
-		parser.PrintTree(tree.Statements)
+		eval := evaluator.Eval(tree)
+		if eval != nil {
+			printEval(eval, out)
+		}
+		// parser.PrintTree(tree.Statements)
+
 	}
+}
+
+func printEval(eval object.Object, out io.Writer) {
+	io.WriteString(out, eval.Inspect()+"\n")
 }
 
 func printParsingError(err []string, out io.Writer) {
