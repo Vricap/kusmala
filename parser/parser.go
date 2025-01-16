@@ -148,7 +148,12 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)
-	pars.parsNextToken()
+	// pars.parsNextToken()
+
+	// TODO: find out more about this
+	if pars.peekToken.Type == token.SEMICOLON {
+		pars.parsNextToken()
+	}
 	return statement
 }
 
