@@ -14,7 +14,7 @@ func Read(arg []string, DEV_MODE bool) {
 	tree := readFile(arg[1], DEV_MODE)
 	if len(arg) > 2 {
 		switch arg[2] {
-		case "-tree", "-t":
+		case "-tree":
 			parser.PrintTree(tree.Statements)
 		default:
 			log.Fatal("Argumen tidak diketahui!")
