@@ -1,7 +1,12 @@
-fungsi (x, y) { 
-	jika x > y) {
+buat a = 1;
+buat b = 2;
+
+buat f = fungsi (x, y) { 
+	jika (x > y) {
 		kembalikan x;
 	} lainnya {
 		kembalikan y;
 	}
 }
+
+buat c = f(a, b);
