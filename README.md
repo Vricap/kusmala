@@ -22,6 +22,12 @@ $ make
 ```  
 Pastikan dalam komputer mu sudah terpasang [make](https://www.gnu.org/software/make/) dan [Go](https://go.dev/). Binary akan berada di `./bin/kusmala`  
 
+Alternatif tanpa *make*:  
+```
+$ go build .
+```  
+Lakukan ini jika tidak mempunyai *make*.  
+
 ## Penggunaan  
 Menjalankan kusmala tanpa argumen akan membuka REPL:  
 ![screenshot 1](./resource/screenshot/1.png)  
