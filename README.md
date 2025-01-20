@@ -24,7 +24,7 @@ Pastikan dalam komputer mu sudah terpasang [make](https://www.gnu.org/software/m
 
 Alternatif tanpa *make*:  
 ```
-$ go build .
+$ go build -o ./bin/ .
 ```  
 Lakukan ini jika tidak mempunyai *make*.  
 
