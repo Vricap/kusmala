@@ -47,6 +47,7 @@ func evalPrefixExpression(op string, right object.Object) object.Object {
 }
 
 func evalInfixExpression(op string, left object.Object, right object.Object) object.Object {
+	// TODO: maybe add if type assertion is 'ok' or not
 	l := left.(*object.Integer).Value
 	r := right.(*object.Integer).Value
 	switch op {
@@ -58,6 +59,14 @@ func evalInfixExpression(op string, left object.Object, right object.Object) obj
 		return &object.Integer{Value: l * r}
 	case "/":
 		return &object.Integer{Value: l / r}
+	case "<":
+		return &object.Boolean{Value: l < r}
+	case ">":
+		return &object.Boolean{Value: l > r}
+	case "==":
+		return &object.Boolean{Value: l == r}
+	case "!=":
+		return &object.Boolean{Value: l != r}
 	}
 	return &object.Nil{}
 }
