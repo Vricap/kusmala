@@ -45,17 +45,19 @@ func Start(in io.Reader, out io.Writer, DEV_MODE bool) {
 			continue
 		}
 
-		eval := evaluator.Eval(tree)
-		if eval != nil {
-			printEval(eval, out)
+		evals := evaluator.Eval(tree)
+		if evals != nil {
+			printEval(evals, out)
 		}
 		// parser.PrintTree(tree.Statements)
 
 	}
 }
 
-func printEval(eval object.Object, out io.Writer) {
-	io.WriteString(out, eval.Inspect()+"\n")
+func printEval(evals []object.Object, out io.Writer) {
+	for _, eval := range evals {
+		io.WriteString(out, eval.Inspect()+"\n")
+	}
 }
 
 func printParsingError(err []string, out io.Writer) {

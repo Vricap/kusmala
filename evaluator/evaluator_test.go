@@ -13,7 +13,7 @@ func testVal(in string) object.Object {
 	pars := parser.NewPars(lex)
 	tree := pars.ConstructTree()
 
-	return Eval(tree)
+	return Eval(tree)[0]
 }
 
 func TestIntegerExpression(t *testing.T) {
@@ -89,7 +89,7 @@ func TestBangOperator(t *testing.T) {
 	}
 }
 
-func TestJikaExpression(t *testing.T) {
+func TestJikaStatement(t *testing.T) {
 	test := []struct {
 		in     string
 		expect any

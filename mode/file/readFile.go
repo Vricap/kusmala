@@ -6,12 +6,18 @@ import (
 	"os"
 
 	"github.com/vricap/kusmala/ast"
+	"github.com/vricap/kusmala/evaluator"
 	"github.com/vricap/kusmala/lexer"
+	"github.com/vricap/kusmala/object"
 	"github.com/vricap/kusmala/parser"
 )
 
 func Read(arg []string, DEV_MODE bool) {
 	tree := readFile(arg[1], DEV_MODE)
+	evals := evaluator.Eval(tree)
+	if evals != nil {
+		printEval(evals)
+	}
 	if len(arg) > 2 {
 		switch arg[2] {
 		case "-tree":
@@ -61,4 +67,10 @@ func printDevError(err []string) {
 		fmt.Println("\t" + e)
 	}
 	os.Exit(1)
+}
+
+func printEval(evals []object.Object) {
+	for _, eval := range evals {
+		fmt.Printf("%s\n", eval.Inspect())
+	}
 }
