@@ -55,6 +55,13 @@ func TestBoolean(t *testing.T) {
 		{"1 != 1", false},
 		{"1 == 2", false},
 		{"1 != 2", true},
+		{"benar == salah", false},
+		{"salah == salah", true},
+		{"benar == salah", false},
+		{"benar != salah", true},
+		{"salah != benar", true},
+		// {"1 == benar", true},
+		// {"1 != benar", false},
 	}
 
 	for _, tt := range test {

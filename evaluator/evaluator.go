@@ -47,7 +47,30 @@ func evalPrefixExpression(op string, right object.Object) object.Object {
 }
 
 func evalInfixExpression(op string, left object.Object, right object.Object) object.Object {
-	// TODO: maybe add if type assertion is 'ok' or not
+	// TODO: add support for inter-expression between boolean and integer e.g: 1 == benar
+	if left.Type() == object.OBJECT_INTEGER && right.Type() == object.OBJECT_INTEGER {
+		return evalInfixIntegerExpression(op, left, right)
+	}
+	if left.Type() == object.OBJECT_BOOLEAN && right.Type() == object.OBJECT_BOOLEAN {
+		return evalInifxBooelanExpression(op, left, right)
+	}
+	return &object.Nil{}
+}
+
+func evalInifxBooelanExpression(op string, left object.Object, right object.Object) object.Object {
+	l := left.(*object.Boolean).Value
+	r := right.(*object.Boolean).Value
+	switch op {
+	case "==":
+		return &object.Boolean{Value: l == r}
+	case "!=":
+		return &object.Boolean{Value: l != r}
+	default:
+		return &object.Nil{}
+	}
+}
+
+func evalInfixIntegerExpression(op string, left object.Object, right object.Object) object.Object {
 	l := left.(*object.Integer).Value
 	r := right.(*object.Integer).Value
 	switch op {
