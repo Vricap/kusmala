@@ -89,6 +89,30 @@ func TestBangOperator(t *testing.T) {
 	}
 }
 
+func TestJikaExpression(t *testing.T) {
+	test := []struct {
+		in     string
+		expect any
+	}{
+		{"jika (benar) { 10 }", 10},
+		{"jika (salah) { 10 }", nil},
+		{"jika (1) { 10 }", 10},
+		{"jika (1 < 2) { 10 }", 10},
+		{"jika (1 > 2) { 10 }", nil},
+		{"jika (1 > 2) { 10 } lainnya { 20 }", 20},
+		{"jika (1 < 2) { 10 } lainnya { 20 }", 10},
+	}
+	for _, tt := range test {
+		eval := testVal(tt.in)
+		int, ok := tt.expect.(int)
+		if ok {
+			testIntegerObject(t, eval, int)
+		} else {
+			testNilObject(t, eval)
+		}
+	}
+}
+
 func testIntegerObject(t *testing.T, eval object.Object, expect int) {
 	i, ok := eval.(*object.Integer)
 	if !ok {
@@ -106,5 +130,12 @@ func testBooleanObject(t *testing.T, eval object.Object, expect bool) {
 	}
 	if b.Value != expect {
 		t.Fatalf("i.Value is not %t. got: %t", expect, b.Value)
+	}
+}
+
+func testNilObject(t *testing.T, eval object.Object) {
+	_, ok := eval.(*object.Nil)
+	if !ok {
+		t.Fatalf("eval is not NIL. got %T", eval)
 	}
 }
