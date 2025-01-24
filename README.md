@@ -46,6 +46,7 @@ buat f = fungsi (x, y) {
 }
 
 buat c = f(a, b);
+cetak(28 / 7 * 2, 15 * 3);
 ```  
 
 Menjalankan kode dari file:  
@@ -93,4 +94,18 @@ AST_TREE:
       ARGUMENTS: 
         IDENT: a
         IDENT: b
+
+  CETAK_STATEMENT: 
+    EXPRESSION: 
+      INFIX_EXPRESSION:
+        INFIX_EXPRESSION:
+          INTEGER_LITERAL: 28
+          OEPERATOR: /
+          INTEGER_LITERAL: 7
+        OEPERATOR: *
+        INTEGER_LITERAL: 2
+      INFIX_EXPRESSION:
+        INTEGER_LITERAL: 15
+        OEPERATOR: *
+        INTEGER_LITERAL: 3
 ```  
