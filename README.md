@@ -51,7 +51,8 @@ cetak(28 / 7 * 2, 15 * 3);
 
 Menjalankan kode dari file:  
 ```
-$ ./bin/kusmala ./example/fungsi_dan_jika.km
+$ ./bin/kusmala ./example/fungsi_dan_jika.km  
+8 45
 ```  
 Tempatkan lokasi file pada argumen ke dua.  
 
