@@ -10,3 +10,4 @@ buat f = fungsi (x, y) {
 }
 
 buat c = f(a, b);
+cetak(28 / 7 * 2, 15 * 3);
