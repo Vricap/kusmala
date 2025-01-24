@@ -70,7 +70,7 @@ func printDevError(err []string) {
 }
 
 func printEval(evals []object.Object) {
-	for _, eval := range evals {
-		fmt.Printf("%s\n", eval.Inspect())
-	}
+	// for _, eval := range evals {
+	// 	fmt.Printf("%s\n", eval.Inspect())
+	// }
 }

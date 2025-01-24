@@ -144,8 +144,9 @@ func evalCetakStatement(cs *ast.CetakStatement) object.Object {
 	for _, e := range cs.Expression {
 		obj = evalExpression(e)
 		// cetak statement is just calling Go fmt.Println
-		fmt.Println(obj.Inspect())
+		fmt.Print(obj.Inspect() + " ")
 	}
+	fmt.Print("\n")
 	// only return the last expression from the block
 	return obj
 }
