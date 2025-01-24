@@ -115,6 +115,8 @@ func (pars *Parser) parsStatement() ast.Statement {
 		return pars.parsKembalikanStatement()
 	case token.JIKA:
 		return pars.parsJikaStatement()
+	case token.CETAK:
+		return pars.parsCetakStatement()
 	default:
 		// since the real statement in the language in only 2 (buat & kembalikan), then other statement must be expression statement
 		return pars.parsExpressionStatement()
@@ -227,6 +229,26 @@ func (pars *Parser) parsBlockStatement() *ast.BlockStatement {
 		pars.currError(token.RBRACE, pars.lex.Line)
 	}
 	return stmnt
+}
+
+func (pars *Parser) parsCetakStatement() *ast.CetakStatement {
+	cetak := &ast.CetakStatement{
+		Token: pars.currToken,
+	}
+	if !pars.expectPeek(token.LPAREN) {
+		pars.peekError(token.LPAREN, pars.lex.Line)
+	}
+	pars.parsNextToken()
+	if pars.expectPeek(token.RPAREN) {
+		return cetak
+	}
+	pars.parsNextToken()
+	cetak.Expression = pars.parsArguments()
+
+	if pars.peekToken.Type == token.SEMICOLON {
+		pars.parsNextToken()
+	}
+	return cetak
 }
 
 /*******************************************
@@ -380,7 +402,9 @@ func (pars *Parser) parsCallExpression(ident ast.Expression) ast.Expression {
 	ce := &ast.CallExpression{Token: pars.currToken, Function: ident}
 	pars.parsNextToken()
 	ce.Arguments = pars.parsArguments()
-
+	if pars.peekToken.Type == token.SEMICOLON {
+		pars.parsNextToken()
+	}
 	return ce
 }
 

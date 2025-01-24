@@ -94,6 +94,16 @@ func (ie *JikaStatement) TokenLiteral() string {
 }
 func (ie *JikaStatement) statementNode() {}
 
+type CetakStatement struct {
+	Token      token.Token
+	Expression []Expression
+}
+
+func (cs *CetakStatement) TokenLiteral() string {
+	return cs.Token.Literal
+}
+func (cs *CetakStatement) statementNode() {}
+
 /*******************************************
 *			EXPRESSION STRUCT			   *
 *******************************************/

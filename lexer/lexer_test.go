@@ -142,6 +142,7 @@ kembalikan salah;
 }
 10 == 11;
 10 != 9;
+cetak
 `
 
 var input_three_test_struct []testStruct = []testStruct{
@@ -230,6 +231,8 @@ var input_three_test_struct []testStruct = []testStruct{
 	{token.TIDAK_SAMA, "!="},
 	{token.BILBUL, "9"},
 	{token.SEMICOLON, ";"},
+
+	{token.CETAK, "cetak"},
 }
 
 func TestNextToken(t *testing.T) {

@@ -11,7 +11,6 @@ func Eval(tree *ast.Tree) []object.Object {
 	var evals []object.Object
 	for _, s := range tree.Statements {
 		evals = append(evals, evalStatement(s))
-
 	}
 	return evals
 }
@@ -23,10 +22,11 @@ func evalStatement(stmt ast.Statement) object.Object {
 	case *ast.JikaStatement:
 		return evalJikaStatement(s)
 	case *ast.BlockStatement:
-		// TODO: only work with 1 statement
-		return evalStatement(s.Statements[0])
+		return evalBlockStatement(s)
 	case *ast.ExpressionStatement:
 		return evalExpression(s.Expression)
+	case *ast.CetakStatement:
+		return evalCetakStatement(s)
 	}
 	return &object.Nil{}
 }
@@ -128,6 +128,26 @@ func evalJikaStatement(jk *ast.JikaStatement) object.Object {
 	} else {
 		return &object.Nil{}
 	}
+}
+
+func evalBlockStatement(bs *ast.BlockStatement) object.Object {
+	var obj object.Object
+	for _, s := range bs.Statements {
+		obj = evalStatement(s)
+	}
+	// only return the last statement from the block
+	return obj
+}
+
+func evalCetakStatement(cs *ast.CetakStatement) object.Object {
+	var obj object.Object
+	for _, e := range cs.Expression {
+		obj = evalExpression(e)
+		// cetak statement is just calling Go fmt.Println
+		fmt.Println(obj.Inspect())
+	}
+	// only return the last expression from the block
+	return obj
 }
 
 func printEval(eval object.Object) {

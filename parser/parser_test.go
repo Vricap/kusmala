@@ -420,6 +420,11 @@ func TestCallExpression(t *testing.T) {
 	checkInfix(expr.Arguments[2], "(1 - 2)")
 }
 
+// TODO: too lazy to write the test...
+func TestCetakStatement(t *testing.T) {
+
+}
+
 /*******************************************
 *			HELPER FUNCTION 			   *
 *******************************************/

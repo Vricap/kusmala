@@ -35,6 +35,9 @@ func printStatement(s ast.Statement, b *bytes.Buffer, space int) {
 	case *ast.ExpressionStatement:
 		e := s.(*ast.ExpressionStatement)
 		printExpression(e.Expression, b, space)
+	case *ast.CetakStatement:
+		c := s.(*ast.CetakStatement)
+		printCetakStatement(c, b, space)
 	}
 	space = 1
 	b.WriteString("\n")
@@ -165,6 +168,14 @@ func printArguments(a []ast.Expression, b *bytes.Buffer, space int) {
 	for _, e := range a {
 		printExpression(e, b, space)
 	}
+}
+
+func printCetakStatement(c *ast.CetakStatement, b *bytes.Buffer, space int) {
+	b.WriteString(addSpace(space) + "CETAK_STATEMENT: \n")
+	space++
+	b.WriteString(addSpace(space) + "EXPRESSION: \n")
+	space++
+	printArguments(c.Expression, b, space)
 }
 
 func addSpace(r int) string {
