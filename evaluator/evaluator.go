@@ -10,7 +10,12 @@ import (
 func Eval(tree *ast.Tree) []object.Object {
 	var evals []object.Object
 	for _, s := range tree.Statements {
-		evals = append(evals, evalStatement(s))
+		eval := evalStatement(s)
+		if ks, ok := eval.(*object.Kembalikan); ok {
+			eval = ks.Value
+			ret_obj = nil
+		}
+		evals = append(evals, eval)
 	}
 	return evals
 }
@@ -133,32 +138,29 @@ func evalJikaStatement(jk *ast.JikaStatement) object.Object {
 }
 
 // TODO: goodluck trying to understand all of this
-// var KEM_ARR []object.Object = []object.Object{} // which is better, this or below
-var ret bool = false // switch to check if already encounter a return stataement
+var ret_obj object.Object
 
 func evalBlockStatement(bs *ast.BlockStatement) object.Object {
 	var obj object.Object
 
 	for _, s := range bs.Statements {
-		// if len(KEM_ARR) != 0 {
-		// 	v := KEM_ARR[0]
-		// 	return KEM_ARR[0]
-		// }
-
-		if ks, ok := s.(*ast.KembalikanStatement); ok && !ret {
-			// KEM_ARR = append(KEM_ARR, evalExpression(ks.Expression))
-			ret = true
-			obj = evalExpression(ks.Expression)
+		if ks, ok := s.(*ast.KembalikanStatement); ok {
+			if ret_obj == nil {
+				ret_obj = evalKembalikanStatement(ks)
+				return ret_obj
+			}
 		}
-		if ret {
-			// if already encounter return statement, return the last obj which is return statement obj
-			return obj
+		if ret_obj != nil {
+			return ret_obj
 		}
 		obj = evalStatement(s)
 	}
-	ret = false // switch back
 	// only return the last statement from the block
 	return obj
+}
+
+func evalKembalikanStatement(ks *ast.KembalikanStatement) object.Object {
+	return &object.Kembalikan{Value: evalExpression(ks.Expression)}
 }
 
 func evalCetakStatement(cs *ast.CetakStatement) object.Object {

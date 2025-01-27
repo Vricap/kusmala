@@ -119,14 +119,33 @@ func TestKembalikanStatement(t *testing.T) {
 		expect int
 	}{
 		{`
-jika (10 > 1) {
-	jika (10 > 1) {
-		kembalikan 10;
-	}
-	129;
-	kembalikan 1;
-	2;
-}`, 10},
+		jika (10 > 1) {
+			jika (10 > 1) {
+				jika (3 < 2) {
+					kembalikan 10;
+				} lainnya {
+					kembalikan 4;
+				}
+			}
+			jika (1 < 10) {
+				2;
+				kembalikan 3;
+			}
+			129;
+			kembalikan 1;
+			2;
+		}`, 4},
+		{
+			`
+		jika (1 > 3) {
+			kembalikan 1;
+		} lainnya {
+			jika (2 < 3) {
+				kembalikan 2;
+			}
+			kembalikan 3;
+		}`, 2,
+		},
 	}
 
 	for _, tt := range test {
