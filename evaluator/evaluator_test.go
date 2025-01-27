@@ -113,6 +113,28 @@ func TestJikaStatement(t *testing.T) {
 	}
 }
 
+func TestKembalikanStatement(t *testing.T) {
+	test := []struct {
+		in     string
+		expect int
+	}{
+		{`
+jika (10 > 1) {
+	jika (10 > 1) {
+		kembalikan 10;
+	}
+	129;
+	kembalikan 1;
+	2;
+}`, 10},
+	}
+
+	for _, tt := range test {
+		eval := testVal(tt.in)
+		testIntegerObject(t, eval, tt.expect)
+	}
+}
+
 func testIntegerObject(t *testing.T, eval object.Object, expect int) {
 	i, ok := eval.(*object.Integer)
 	if !ok {

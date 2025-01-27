@@ -402,9 +402,6 @@ func (pars *Parser) parsCallExpression(ident ast.Expression) ast.Expression {
 	ce := &ast.CallExpression{Token: pars.currToken, Function: ident}
 	pars.parsNextToken()
 	ce.Arguments = pars.parsArguments()
-	if pars.peekToken.Type == token.SEMICOLON {
-		pars.parsNextToken()
-	}
 	return ce
 }
 

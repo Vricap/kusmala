@@ -5,9 +5,10 @@ import "fmt"
 type ObjectType string
 
 const (
-	OBJECT_INTEGER ObjectType = "INTEGER"
-	OBJECT_BOOLEAN            = "BOOLEAN"
-	OBJECT_NIL                = "NIL"
+	OBJECT_INTEGER    ObjectType = "INTEGER"
+	OBJECT_BOOLEAN               = "BOOLEAN"
+	OBJECT_NIL                   = "NIL"
+	OBJECT_KEMBALIKAN            = "OBJECT_KEMBALIKAN"
 )
 
 type Object interface {
@@ -51,4 +52,15 @@ func (n *Nil) Inspect() string {
 }
 func (n *Nil) Type() ObjectType {
 	return OBJECT_NIL
+}
+
+type Kembalikan struct {
+	Value Object
+}
+
+func (k *Kembalikan) Inspect() string {
+	return k.Value.Inspect()
+}
+func (k *Kembalikan) Type() ObjectType {
+	return OBJECT_KEMBALIKAN
 }

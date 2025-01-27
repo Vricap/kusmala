@@ -18,7 +18,9 @@ func Eval(tree *ast.Tree) []object.Object {
 func evalStatement(stmt ast.Statement) object.Object {
 	switch s := stmt.(type) {
 	case *ast.BuatStatement:
-	case *ast.KembalikanStatement:
+	// TODO: kembalikan statement isn't allowed in global scope. only inside a block statement
+	// case *ast.KembalikanStatement:
+	// 	return evalKembalikanStatement(s)
 	case *ast.JikaStatement:
 		return evalJikaStatement(s)
 	case *ast.BlockStatement:
@@ -122,19 +124,39 @@ func evalInfixIntegerExpression(op string, left object.Object, right object.Obje
 func evalJikaStatement(jk *ast.JikaStatement) object.Object {
 	cond := evalExpression(jk.Condition)
 	if condIsTrue(cond) {
-		return evalStatement(jk.JikaBlock)
+		return evalBlockStatement(jk.JikaBlock)
 	} else if jk.LainnyaBlock != nil {
-		return evalStatement(jk.LainnyaBlock)
+		return evalBlockStatement(jk.LainnyaBlock)
 	} else {
 		return &object.Nil{}
 	}
 }
 
+// TODO: goodluck trying to understand all of this
+// var KEM_ARR []object.Object = []object.Object{} // which is better, this or below
+var ret bool = false // switch to check if already encounter a return stataement
+
 func evalBlockStatement(bs *ast.BlockStatement) object.Object {
 	var obj object.Object
+
 	for _, s := range bs.Statements {
+		// if len(KEM_ARR) != 0 {
+		// 	v := KEM_ARR[0]
+		// 	return KEM_ARR[0]
+		// }
+
+		if ks, ok := s.(*ast.KembalikanStatement); ok && !ret {
+			// KEM_ARR = append(KEM_ARR, evalExpression(ks.Expression))
+			ret = true
+			obj = evalExpression(ks.Expression)
+		}
+		if ret {
+			// if already encounter return statement, return the last obj which is return statement obj
+			return obj
+		}
 		obj = evalStatement(s)
 	}
+	ret = false // switch back
 	// only return the last statement from the block
 	return obj
 }
@@ -147,7 +169,7 @@ func evalCetakStatement(cs *ast.CetakStatement) object.Object {
 		fmt.Print(obj.Inspect() + " ")
 	}
 	fmt.Print("\n")
-	// only return the last expression from the block
+	// only return the last expression
 	return obj
 }
 
