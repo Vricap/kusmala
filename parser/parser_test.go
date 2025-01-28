@@ -56,7 +56,7 @@ func TestBuatStatement(t *testing.T) {
 		}
 
 		if buatStatementStruct.Name.TokenLiteral() != tt.expected {
-			t.Fatalf("s.Name not '%s'. got: %s", tt.expected, buatStatementStruct.Name)
+			t.Fatalf("s.Name not '%s'. got: %s", tt.expected, buatStatementStruct.Name.Value)
 		}
 
 	}

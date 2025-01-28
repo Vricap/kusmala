@@ -15,6 +15,10 @@ func Eval(tree *ast.Tree) []object.Object {
 			eval = ks.Value
 			ret_obj = nil
 		}
+		if err, ok := eval.(*object.Error); ok {
+			fmt.Println("\t" + err.Inspect())
+			break // TODO: remove this when running test case
+		}
 		evals = append(evals, eval)
 	}
 	return evals
@@ -28,21 +32,23 @@ func evalStatement(stmt ast.Statement) object.Object {
 	// 	return evalKembalikanStatement(s)
 	case *ast.JikaStatement:
 		return evalJikaStatement(s)
-	case *ast.BlockStatement:
+	case *ast.BlockStatement: // TODO: this problably shouldn't be here
 		return evalBlockStatement(s)
 	case *ast.ExpressionStatement:
 		return evalExpression(s.Expression)
 	case *ast.CetakStatement:
 		return evalCetakStatement(s)
+	default:
+		return newError("statement tidak diketahui atau tidak ditempatnya", s.TokenLiteral(), s.Line())
 	}
-	return &object.Nil{}
+	return nil
 }
 
 func evalExpression(expr ast.Expression) object.Object {
 	switch e := expr.(type) {
 	case *ast.Identifier:
 	case *ast.IntegerLiteral:
-		return &object.Integer{Value: e.Value}
+		return &object.Integer{Value: e.Value, Ln: e.Ln}
 	case *ast.PrefixExpression:
 		right := evalExpression(e.Right)
 		return evalPrefixExpression(e.Operator, right)
@@ -51,11 +57,13 @@ func evalExpression(expr ast.Expression) object.Object {
 		right := evalExpression(e.Right)
 		return evalInfixExpression(e.Operator, left, right)
 	case *ast.BooleanLiteral:
-		return &object.Boolean{Value: e.Value}
+		return &object.Boolean{Value: e.Value, Ln: e.Ln}
 	case *ast.FungsiExpression:
 	case *ast.CallExpression:
+	default:
+		return newError("ekspresi tidak diketahui atau tidak ditempatnya", e.TokenLiteral(), e.Line())
 	}
-	return &object.Nil{}
+	return nil
 }
 
 func evalPrefixExpression(op string, right object.Object) object.Object {
@@ -70,12 +78,12 @@ func evalPrefixExpression(op string, right object.Object) object.Object {
 		}
 	case "-":
 		if right.Type() != object.OBJECT_INTEGER {
-			return &object.Nil{}
+			return newError("operator tidak didukung", fmt.Sprintf("%s%s", op, right.Inspect()), right.Line())
 		}
 		i := right.(*object.Integer)
 		return &object.Integer{Value: -(i.Value)}
 	}
-	return &object.Nil{}
+	return newError("operator tidak didukung", fmt.Sprintf("%s%s", op, right.Inspect()), right.Line())
 }
 
 func evalInfixExpression(op string, left object.Object, right object.Object) object.Object {
@@ -86,7 +94,7 @@ func evalInfixExpression(op string, left object.Object, right object.Object) obj
 	if left.Type() == object.OBJECT_BOOLEAN && right.Type() == object.OBJECT_BOOLEAN {
 		return evalInifxBooelanExpression(op, left, right)
 	}
-	return &object.Nil{}
+	return newError("kesalahan tipe", fmt.Sprintf("%v %v %v", left.Inspect(), op, right.Inspect()), left.Line())
 }
 
 func evalInifxBooelanExpression(op string, left object.Object, right object.Object) object.Object {
@@ -98,7 +106,7 @@ func evalInifxBooelanExpression(op string, left object.Object, right object.Obje
 	case "!=":
 		return &object.Boolean{Value: l != r}
 	default:
-		return &object.Nil{}
+		return newError("operator tidak didukung", fmt.Sprintf("%v %v %v", left.Inspect(), op, right.Inspect()), left.Line())
 	}
 }
 
@@ -122,8 +130,9 @@ func evalInfixIntegerExpression(op string, left object.Object, right object.Obje
 		return &object.Boolean{Value: l == r}
 	case "!=":
 		return &object.Boolean{Value: l != r}
+	default:
+		return newError("operator tidak didukung", fmt.Sprintf("%v %v %v", left.Inspect(), op, right.Inspect()), left.Line())
 	}
-	return &object.Nil{}
 }
 
 func evalJikaStatement(jk *ast.JikaStatement) object.Object {
@@ -154,13 +163,17 @@ func evalBlockStatement(bs *ast.BlockStatement) object.Object {
 			return ret_obj
 		}
 		obj = evalStatement(s)
+		if err, ok := obj.(*object.Error); ok {
+			fmt.Println("\t" + err.Inspect())
+			continue // so that all error from the blocks from parent to all its child is outputted. change to break to negate
+		}
 	}
 	// only return the last statement from the block
 	return obj
 }
 
 func evalKembalikanStatement(ks *ast.KembalikanStatement) object.Object {
-	return &object.Kembalikan{Value: evalExpression(ks.Expression)}
+	return &object.Kembalikan{Value: evalExpression(ks.Expression), Ln: ks.Line()}
 }
 
 func evalCetakStatement(cs *ast.CetakStatement) object.Object {
@@ -189,4 +202,8 @@ func condIsTrue(cond object.Object) bool {
 		// truthy
 		return true
 	}
+}
+
+func newError(msg string, a any, l int) *object.Error {
+	return &object.Error{Msg: fmt.Sprintf("%d: %s dekat '%v'", l, msg, a)}
 }

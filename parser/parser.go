@@ -275,7 +275,7 @@ func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 func (pars *Parser) parsExpression(precedence int) ast.Expression {
 	prefix := pars.prefixParsMap[pars.currToken.Type] // check if currToken have function assosiated with that
 	if prefix == nil {
-		pars.Errors = append(pars.Errors, fmt.Sprintf("Error di baris %d: \n\tToken tidak diharapkan ditemukan '%s'", pars.lex.Line, pars.currToken.Literal))
+		pars.Errors = append(pars.Errors, fmt.Sprintf("ERROR di baris %d: \n\tToken tidak diharapkan ditemukan '%s'", pars.lex.Line, pars.currToken.Literal))
 		pars.DevErrors = append(pars.DevErrors, fmt.Sprintf("There's not function assosiated with %v, literal: %s", pars.currToken.Type, pars.currToken.Literal))
 		return nil
 	}
@@ -451,12 +451,12 @@ func (pars *Parser) expectCurr(tok token.TokenType) bool {
 }
 
 func (pars *Parser) peekError(expectTok token.TokenType, l int) {
-	msg := fmt.Sprintf("Error di baris %d: \n\tToken selanjutnya mengharapkan %s, tetapi menemukan '%s'", l, expectTok, pars.peekToken.Literal)
+	msg := fmt.Sprintf("ERROR di baris %d: \n\tToken selanjutnya mengharapkan %s, tetapi menemukan '%s'", l, expectTok, pars.peekToken.Literal)
 	pars.Errors = append(pars.Errors, msg)
 }
 
 func (pars *Parser) currError(expectTok token.TokenType, l int) {
-	msg := fmt.Sprintf("Error di baris %d: \n\tToken sekarang mengharapkan %s, tetapi menemukan '%s'", l, expectTok, pars.currToken.Literal)
+	msg := fmt.Sprintf("ERROR di baris %d: \n\tToken sekarang mengharapkan %s, tetapi menemukan '%s'", l, expectTok, pars.currToken.Literal)
 	pars.Errors = append(pars.Errors, msg)
 }
 

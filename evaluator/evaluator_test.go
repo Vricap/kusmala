@@ -154,6 +154,37 @@ func TestKembalikanStatement(t *testing.T) {
 	}
 }
 
+func TestErrorHandling(t *testing.T) {
+	test := []struct {
+		in     string
+		expect string
+	}{
+		{"1 + benar;", "ERROR di baris 1: kesalahan tipe dekat '1 + benar'"},
+		{"1 + benar; 2;", "ERROR di baris 1: kesalahan tipe dekat '1 + benar'"},
+		{"salah + benar;", "ERROR di baris 1: operator tidak didukung dekat 'salah + benar'"},
+		{"-benar;", "ERROR di baris 1: operator tidak didukung dekat '-benar'"},
+		{"salah + benar;", "ERROR di baris 1: operator tidak didukung dekat 'salah + benar'"},
+		{`
+		jika(1 < 2) {
+			jika (1 < 3) {
+				kembalikan benar - salah;
+			}
+			kembalikan 1;
+		}
+		`, "ERROR di baris 4: operator tidak didukung dekat 'benar - salah'"},
+	}
+	for _, tt := range test {
+		eval := testVal(tt.in)
+		e, ok := eval.(*object.Error)
+		if !ok {
+			t.Errorf("eval is not *object.Error. got: %T", eval)
+		}
+		if e.Inspect() != tt.expect {
+			t.Fatalf("e.Msg is not: '%s'. got: %s", tt.expect, e.Inspect())
+		}
+	}
+}
+
 func testIntegerObject(t *testing.T, eval object.Object, expect int) {
 	i, ok := eval.(*object.Integer)
 	if !ok {
