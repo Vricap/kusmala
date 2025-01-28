@@ -126,6 +126,7 @@ func (pars *Parser) parsStatement() ast.Statement {
 func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 	statement := &ast.BuatStatement{
 		Token: pars.currToken,
+		Ln:    pars.lex.Line,
 	}
 	if !pars.expectPeek(token.IDENT) {
 		// pars.Errors("Sebuah buat statement membutuhkan nama!")
@@ -162,6 +163,7 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	statement := &ast.KembalikanStatement{
 		Token: pars.currToken,
+		Ln:    pars.lex.Line,
 	}
 
 	_, ok := pars.prefixParsMap[pars.peekToken.Type]
@@ -177,6 +179,7 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
 	jika := &ast.JikaStatement{
 		Token: pars.currToken,
+		Ln:    pars.lex.Line,
 	}
 
 	if !pars.expectPeek(token.LPAREN) {
@@ -216,6 +219,7 @@ func (pars *Parser) parsJikaStatement() *ast.JikaStatement {
 func (pars *Parser) parsBlockStatement() *ast.BlockStatement {
 	stmnt := &ast.BlockStatement{
 		Token: pars.currToken,
+		Ln:    pars.lex.Line,
 	}
 	for pars.currToken.Type != token.RBRACE {
 		if pars.currToken.Type == token.EOF {
@@ -234,6 +238,7 @@ func (pars *Parser) parsBlockStatement() *ast.BlockStatement {
 func (pars *Parser) parsCetakStatement() *ast.CetakStatement {
 	cetak := &ast.CetakStatement{
 		Token: pars.currToken,
+		Ln:    pars.lex.Line,
 	}
 	if !pars.expectPeek(token.LPAREN) {
 		pars.peekError(token.LPAREN, pars.lex.Line)
@@ -258,6 +263,7 @@ func (pars *Parser) parsCetakStatement() *ast.CetakStatement {
 func (pars *Parser) parsExpressionStatement() *ast.ExpressionStatement {
 	exprStmnt := &ast.ExpressionStatement{
 		Token: pars.currToken,
+		Ln:    pars.lex.Line,
 	}
 	exprStmnt.Expression = pars.parsExpression(LOWEST)
 	if pars.peekToken.Type == token.SEMICOLON {
@@ -289,6 +295,7 @@ func (pars *Parser) parsIdent() ast.Expression { // this signature match the pre
 	return &ast.Identifier{
 		Token: pars.currToken,
 		Value: pars.currToken.Literal,
+		Ln:    pars.lex.Line,
 	}
 }
 
@@ -302,6 +309,7 @@ func (pars *Parser) parsIntegerLiteral() ast.Expression {
 	int := &ast.IntegerLiteral{
 		Token: pars.currToken,
 		Value: literal,
+		Ln:    pars.lex.Line,
 	}
 	return int
 }
@@ -309,6 +317,7 @@ func (pars *Parser) parsIntegerLiteral() ast.Expression {
 func (pars *Parser) parsBooleanLiteral() ast.Expression {
 	bool := &ast.BooleanLiteral{
 		Token: pars.currToken,
+		Ln:    pars.lex.Line,
 	}
 	if pars.currToken.Literal == "benar" {
 		bool.Value = true
@@ -322,6 +331,7 @@ func (pars *Parser) parsPrefix() ast.Expression {
 	prefix := &ast.PrefixExpression{
 		Token:    pars.currToken,
 		Operator: pars.currToken.Literal,
+		Ln:       pars.lex.Line,
 	}
 	pars.parsNextToken() // currToken now point to the integer
 
@@ -335,6 +345,7 @@ func (pars *Parser) parsInfix(left ast.Expression) ast.Expression {
 		Token:    pars.currToken,
 		Operator: pars.currToken.Literal,
 		Left:     left,
+		Ln:       pars.lex.Line,
 	}
 	precedence := pars.currPrecedence()
 	pars.parsNextToken()
@@ -355,6 +366,7 @@ func (pars *Parser) parsInfix(left ast.Expression) ast.Expression {
 func (pars *Parser) parsFungsiLiteral() ast.Expression {
 	fung := &ast.FungsiExpression{
 		Token: pars.currToken,
+		Ln:    pars.lex.Line,
 	}
 
 	if !pars.expectPeek(token.LPAREN) {
@@ -387,7 +399,7 @@ func (pars *Parser) parsParams() []*ast.Identifier {
 		if pars.currToken.Type == token.EOF {
 			break
 		}
-		iden = append(iden, &ast.Identifier{Token: pars.currToken, Value: pars.currToken.Literal})
+		iden = append(iden, &ast.Identifier{Token: pars.currToken, Value: pars.currToken.Literal, Ln: pars.lex.Line})
 		pars.parsNextToken()
 	}
 	// TODO: quick hack
@@ -399,7 +411,7 @@ func (pars *Parser) parsParams() []*ast.Identifier {
 
 // add(1, 2 * 3, 1 - 2)`
 func (pars *Parser) parsCallExpression(ident ast.Expression) ast.Expression {
-	ce := &ast.CallExpression{Token: pars.currToken, Function: ident}
+	ce := &ast.CallExpression{Token: pars.currToken, Function: ident, Ln: pars.lex.Line}
 	pars.parsNextToken()
 	ce.Arguments = pars.parsArguments()
 	return ce
