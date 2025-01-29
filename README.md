@@ -46,13 +46,13 @@ buat f = fungsi (x, y) {
 }
 
 buat c = f(a, b);
-cetak(28 / 7 * 2, 15 * 3);
+cetak("Hasilnya adalah: ", 28 / 7 * 2, 15 * 3);
 ```  
 
 Menjalankan kode dari file:  
 ```
 $ ./bin/kusmala ./example/fungsi_dan_jika.km  
-8 45
+Hasilnya adalah: 8 45
 ```  
 Tempatkan lokasi file pada argumen ke dua.  
 
