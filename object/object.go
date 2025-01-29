@@ -10,6 +10,7 @@ const (
 	OBJECT_NIL                   = "NIL"
 	OBJECT_KEMBALIKAN            = "OBJECT_KEMBALIKAN"
 	OBJECT_ERR                   = "ERROR"
+	OBJECT_STRING                = "STRING"
 )
 
 type Object interface {
@@ -94,4 +95,19 @@ func (e *Error) Type() ObjectType {
 }
 func (i *Error) Line() int {
 	return 0
+}
+
+type String struct {
+	Value string
+	Ln    int
+}
+
+func (s *String) Inspect() string {
+	return s.Value
+}
+func (s *String) Type() ObjectType {
+	return OBJECT_STRING
+}
+func (s *String) Line() int {
+	return s.Ln
 }

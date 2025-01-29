@@ -17,7 +17,7 @@ func Eval(tree *ast.Tree) []object.Object {
 		}
 		if err, ok := eval.(*object.Error); ok {
 			fmt.Println("\t" + err.Inspect())
-			// break // TODO: remove this when running test case
+			break // TODO: remove this when running test case
 		}
 		evals = append(evals, eval)
 	}
@@ -60,6 +60,8 @@ func evalExpression(expr ast.Expression) object.Object {
 		return &object.Boolean{Value: e.Value, Ln: e.Ln}
 	case *ast.FungsiExpression:
 	case *ast.CallExpression:
+	case *ast.StringLiteral:
+		return &object.String{Value: e.Value, Ln: e.Ln}
 	default:
 		return newError("ekspresi tidak diketahui atau tidak ditempatnya", e.TokenLiteral(), e.Line())
 	}
@@ -93,6 +95,10 @@ func evalInfixExpression(op string, left object.Object, right object.Object) obj
 	}
 	if left.Type() == object.OBJECT_BOOLEAN && right.Type() == object.OBJECT_BOOLEAN {
 		return evalInifxBooelanExpression(op, left, right)
+	}
+
+	if left.Type() == object.OBJECT_STRING && right.Type() == object.OBJECT_STRING {
+		return evalInifxStringExpression(op, left, right)
 	}
 	return newError("kesalahan tipe", fmt.Sprintf("%v %v %v", left.Inspect(), op, right.Inspect()), left.Line())
 }
@@ -130,6 +136,17 @@ func evalInfixIntegerExpression(op string, left object.Object, right object.Obje
 		return &object.Boolean{Value: l == r}
 	case "!=":
 		return &object.Boolean{Value: l != r}
+	default:
+		return newError("operator tidak didukung", fmt.Sprintf("%v %v %v", left.Inspect(), op, right.Inspect()), left.Line())
+	}
+}
+
+func evalInifxStringExpression(op string, left object.Object, right object.Object) object.Object {
+	l := left.(*object.String).Value
+	r := right.(*object.String).Value
+	switch op {
+	case "+":
+		return &object.String{Value: l + r} // string concatenation
 	default:
 		return newError("operator tidak didukung", fmt.Sprintf("%v %v %v", left.Inspect(), op, right.Inspect()), left.Line())
 	}

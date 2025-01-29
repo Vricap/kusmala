@@ -1,1 +1,3 @@
-"Helo World"
+"Helo" + 1;
+
+cetak("Halo " + "Dunia");

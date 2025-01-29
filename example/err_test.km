@@ -1,5 +1,6 @@
 jika (10 > 1) {
 	jika (10 > 1) {
+		cetak("DIBAWAH ADALAH ERROR: ");
 		1 + benar;
 		jika (3 < 2) {
 			kembalikan 10;

@@ -421,6 +421,11 @@ func TestCallExpression(t *testing.T) {
 }
 
 // TODO: too lazy to write the test...
+func TestStringLiteral(t *testing.T) {
+
+}
+
+// TODO: too lazy to write the test...
 func TestCetakStatement(t *testing.T) {
 
 }

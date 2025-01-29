@@ -70,6 +70,8 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerPrefix(token.BENAR, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.SALAH, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.FUNGSI, pars.parsFungsiLiteral)
+	pars.registerPrefix(token.STRING, pars.parsStringLiteral)
+
 	// i decide if-else is a statement and NOT a expression
 	// pars.registerPrefix(token.JIKA, pars.parsJikaExpression)
 	// kusmala does not grouped expression... i dont know how to implement it :(
@@ -436,6 +438,15 @@ func (pars *Parser) parsArguments() []ast.Expression {
 		pars.currError(token.RPAREN, pars.lex.Line)
 	}
 	return expr
+}
+
+func (pars *Parser) parsStringLiteral() ast.Expression {
+	str := &ast.StringLiteral{
+		Token: pars.currToken,
+		Value: pars.currToken.Literal,
+		Ln:    pars.lex.Line,
+	}
+	return str
 }
 
 /*******************************************
