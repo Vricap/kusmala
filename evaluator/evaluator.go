@@ -17,7 +17,7 @@ func Eval(tree *ast.Tree) []object.Object {
 		}
 		if err, ok := eval.(*object.Error); ok {
 			fmt.Println("\t" + err.Inspect())
-			break // TODO: remove this when running test case
+			// break // TODO: remove this when running test case
 		}
 		evals = append(evals, eval)
 	}

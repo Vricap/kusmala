@@ -63,6 +63,8 @@ func (lex *Lexer) NextToken() token.Token {
 		tok = token.NewToken(token.COMMA, string(lex.char))
 	case ';':
 		tok = token.NewToken(token.SEMICOLON, string(lex.char))
+	case '"':
+		tok = token.NewToken(token.STRING, lex.readString())
 	case 0:
 		tok = token.NewToken(token.EOF, "")
 	default:
@@ -153,4 +155,14 @@ func isLetter(char byte) bool {
 
 func isDigit(char byte) bool {
 	return char >= '0' && char <= '9' // '0' corresponds to ASCII value 48. '9' corresponds to ASCII value 57.
+}
+
+func (lex *Lexer) readString() string {
+	var str string
+	lex.readChar()
+	for lex.char != 34 {
+		str += string(lex.char)
+		lex.readChar()
+	}
+	return str
 }

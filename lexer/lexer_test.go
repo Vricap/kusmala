@@ -142,7 +142,7 @@ kembalikan salah;
 }
 10 == 11;
 10 != 9;
-cetak
+cetak("Helo World");
 `
 
 var input_three_test_struct []testStruct = []testStruct{
@@ -233,6 +233,10 @@ var input_three_test_struct []testStruct = []testStruct{
 	{token.SEMICOLON, ";"},
 
 	{token.CETAK, "cetak"},
+	{token.LPAREN, "("},
+	{token.STRING, "Helo World"},
+	{token.RPAREN, ")"},
+	{token.SEMICOLON, ";"},
 }
 
 func TestNextToken(t *testing.T) {

@@ -9,6 +9,7 @@ const (
 
 	IDENT  TokenType = "IDENT"  // user-defined. e.g variable name
 	BILBUL TokenType = "BILBUL" // bilangan bulat / int
+	STRING TokenType = "STRING"
 
 	// operator
 	ASSIGN     TokenType = "="

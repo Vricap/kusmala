@@ -212,3 +212,17 @@ func (ce *CallExpression) TokenLiteral() string {
 }
 func (ce *CallExpression) expressionNode() {}
 func (bs *CallExpression) Line() int       { return bs.Ln }
+
+type String struct {
+	Token token.Token
+	Value string
+	Ln    int
+}
+
+func (s *String) TokenLiteral() string {
+	return s.Value
+}
+func (s *String) expressionNode() {}
+func (s *String) Line() int {
+	return s.Ln
+}
