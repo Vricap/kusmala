@@ -66,6 +66,9 @@ func printExpression(expr ast.Expression, b *bytes.Buffer, space int) {
 	case *ast.CallExpression:
 		c := expr.(*ast.CallExpression)
 		printCallExpression(c, b, space)
+	case *ast.StringLiteral:
+		s := expr.(*ast.StringLiteral)
+		printStringLiteral(s, b, space)
 	}
 }
 
@@ -122,6 +125,10 @@ func printPrefixExpression(p *ast.PrefixExpression, b *bytes.Buffer, space int) 
 
 func printIntegerLiteral(i *ast.IntegerLiteral, b *bytes.Buffer, space int) {
 	b.WriteString(addSpace(space) + "INTEGER_LITERAL: " + i.Token.Literal + "\n")
+}
+
+func printStringLiteral(s *ast.StringLiteral, b *bytes.Buffer, space int) {
+	b.WriteString(addSpace(space) + "STRING_LITERAL: " + s.Token.Literal + "\n")
 }
 
 func printBooleanLiteral(bl *ast.BooleanLiteral, b *bytes.Buffer, space int) {
