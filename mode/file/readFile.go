@@ -14,7 +14,8 @@ import (
 
 func Read(arg []string, DEV_MODE bool) {
 	tree := readFile(arg[1], DEV_MODE)
-	evals := evaluator.Eval(tree)
+	env := object.NewEnv()
+	evals := evaluator.Eval(tree, env)
 	if evals != nil {
 		printEval(evals)
 	}

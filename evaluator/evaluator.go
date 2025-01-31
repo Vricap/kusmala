@@ -7,10 +7,10 @@ import (
 	"github.com/vricap/kusmala/object"
 )
 
-func Eval(tree *ast.Tree) []object.Object {
+func Eval(tree *ast.Tree, env *object.Environment) []object.Object {
 	var evals []object.Object
 	for _, s := range tree.Statements {
-		eval := evalStatement(s)
+		eval := evalStatement(s, env)
 		if ks, ok := eval.(*object.Kembalikan); ok {
 			eval = ks.Value
 			ret_obj = nil
@@ -24,48 +24,50 @@ func Eval(tree *ast.Tree) []object.Object {
 	return evals
 }
 
-func evalStatement(stmt ast.Statement) object.Object {
+func evalStatement(stmt ast.Statement, env *object.Environment) object.Object {
 	switch s := stmt.(type) {
 	case *ast.BuatStatement:
+		val := evalExpression(s.Expression, env)
+		env.Set(s.Name.Value, val)
+		return val
+	case *ast.JikaStatement:
+		return evalJikaStatement(s, env)
+	case *ast.BlockStatement: // TODO: this problably shouldn't be here
+		return evalBlockStatement(s, env)
+	case *ast.ExpressionStatement:
+		return evalExpression(s.Expression, env)
+	case *ast.CetakStatement:
+		return evalCetakStatement(s, env)
 	// TODO: kembalikan statement isn't allowed in global scope. only inside a block statement
 	// case *ast.KembalikanStatement:
 	// 	return evalKembalikanStatement(s)
-	case *ast.JikaStatement:
-		return evalJikaStatement(s)
-	case *ast.BlockStatement: // TODO: this problably shouldn't be here
-		return evalBlockStatement(s)
-	case *ast.ExpressionStatement:
-		return evalExpression(s.Expression)
-	case *ast.CetakStatement:
-		return evalCetakStatement(s)
 	default:
 		return newError("statement tidak diketahui atau tidak ditempatnya", s.TokenLiteral(), s.Line())
 	}
-	return nil
 }
 
-func evalExpression(expr ast.Expression) object.Object {
+func evalExpression(expr ast.Expression, env *object.Environment) object.Object {
 	switch e := expr.(type) {
 	case *ast.Identifier:
+		return evalIdentifier(e, env)
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: e.Value, Ln: e.Ln}
 	case *ast.PrefixExpression:
-		right := evalExpression(e.Right)
+		right := evalExpression(e.Right, env)
 		return evalPrefixExpression(e.Operator, right)
 	case *ast.InfixExpression:
-		left := evalExpression(e.Left)
-		right := evalExpression(e.Right)
+		left := evalExpression(e.Left, env)
+		right := evalExpression(e.Right, env)
 		return evalInfixExpression(e.Operator, left, right)
 	case *ast.BooleanLiteral:
 		return &object.Boolean{Value: e.Value, Ln: e.Ln}
-	case *ast.FungsiExpression:
-	case *ast.CallExpression:
+	// case *ast.FungsiExpression:
+	// case *ast.CallExpression:
 	case *ast.StringLiteral:
 		return &object.String{Value: e.Value, Ln: e.Ln}
 	default:
 		return newError("ekspresi tidak diketahui atau tidak ditempatnya", e.TokenLiteral(), e.Line())
 	}
-	return nil
 }
 
 func evalPrefixExpression(op string, right object.Object) object.Object {
@@ -152,12 +154,20 @@ func evalInifxStringExpression(op string, left object.Object, right object.Objec
 	}
 }
 
-func evalJikaStatement(jk *ast.JikaStatement) object.Object {
-	cond := evalExpression(jk.Condition)
+func evalIdentifier(i *ast.Identifier, env *object.Environment) object.Object {
+	val, ok := env.Get(i.Value)
+	if !ok {
+		return newError("pengenal tidak diketahui", i.Value, i.Ln)
+	}
+	return val
+}
+
+func evalJikaStatement(jk *ast.JikaStatement, env *object.Environment) object.Object {
+	cond := evalExpression(jk.Condition, env)
 	if condIsTrue(cond) {
-		return evalBlockStatement(jk.JikaBlock)
+		return evalBlockStatement(jk.JikaBlock, env)
 	} else if jk.LainnyaBlock != nil {
-		return evalBlockStatement(jk.LainnyaBlock)
+		return evalBlockStatement(jk.LainnyaBlock, env)
 	} else {
 		return &object.Nil{}
 	}
@@ -166,20 +176,20 @@ func evalJikaStatement(jk *ast.JikaStatement) object.Object {
 // TODO: goodluck trying to understand all of this
 var ret_obj object.Object
 
-func evalBlockStatement(bs *ast.BlockStatement) object.Object {
+func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment) object.Object {
 	var obj object.Object
 
 	for _, s := range bs.Statements {
 		if ks, ok := s.(*ast.KembalikanStatement); ok {
 			if ret_obj == nil {
-				ret_obj = evalKembalikanStatement(ks)
+				ret_obj = evalKembalikanStatement(ks, env)
 				return ret_obj
 			}
 		}
 		if ret_obj != nil {
 			return ret_obj
 		}
-		obj = evalStatement(s)
+		obj = evalStatement(s, env)
 		if err, ok := obj.(*object.Error); ok {
 			fmt.Println("\t" + err.Inspect())
 			continue // so that all error from the blocks from parent to all its child is outputted. change to break to negate
@@ -189,14 +199,14 @@ func evalBlockStatement(bs *ast.BlockStatement) object.Object {
 	return obj
 }
 
-func evalKembalikanStatement(ks *ast.KembalikanStatement) object.Object {
-	return &object.Kembalikan{Value: evalExpression(ks.Expression), Ln: ks.Line()}
+func evalKembalikanStatement(ks *ast.KembalikanStatement, env *object.Environment) object.Object {
+	return &object.Kembalikan{Value: evalExpression(ks.Expression, env), Ln: ks.Line()}
 }
 
-func evalCetakStatement(cs *ast.CetakStatement) object.Object {
+func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.Object {
 	var obj object.Object
 	for _, e := range cs.Expression {
-		obj = evalExpression(e)
+		obj = evalExpression(e, env)
 		// cetak statement is just calling Go fmt.Println
 		fmt.Print(obj.Inspect() + " ")
 	}

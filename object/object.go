@@ -11,6 +11,7 @@ const (
 	OBJECT_KEMBALIKAN            = "OBJECT_KEMBALIKAN"
 	OBJECT_ERR                   = "ERROR"
 	OBJECT_STRING                = "STRING"
+	OBEJCT_IDENTIFIER            = "IDENTIFIER"
 )
 
 type Object interface {
@@ -110,4 +111,38 @@ func (s *String) Type() ObjectType {
 }
 func (s *String) Line() int {
 	return s.Ln
+}
+
+type Ident struct {
+	Value Object
+	Ln    int
+}
+
+func (i *Ident) Type() ObjectType {
+	return OBEJCT_IDENTIFIER
+}
+func (i *Ident) Inspect() string {
+	return i.Value.Inspect()
+}
+func (i *Ident) Line() int {
+	return i.Ln
+}
+
+func NewEnv() *Environment {
+	s := map[string]Object{}
+	return &Environment{store: s}
+}
+
+// TODO: the environment doesn't have idea about global scope or block scope.
+type Environment struct {
+	store map[string]Object
+}
+
+func (e *Environment) Get(name string) (Object, bool) {
+	obj, ok := e.store[name]
+	return obj, ok
+}
+func (e *Environment) Set(name string, val Object) Object {
+	e.store[name] = val
+	return val
 }

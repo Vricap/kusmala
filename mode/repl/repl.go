@@ -44,8 +44,8 @@ func Start(in io.Reader, out io.Writer, DEV_MODE bool) {
 			printParsingError(pars.Errors, out)
 			continue
 		}
-
-		evals := evaluator.Eval(tree)
+		env := object.NewEnv()
+		evals := evaluator.Eval(tree, env)
 		if evals != nil {
 			printEval(evals, out)
 		}

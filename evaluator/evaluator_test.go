@@ -12,8 +12,11 @@ func testVal(in string) object.Object {
 	lex := lexer.NewLex(in)
 	pars := parser.NewPars(lex)
 	tree := pars.ConstructTree()
+	env := object.NewEnv()
 
-	return Eval(tree)[0]
+	// TODO: this fuck my test case
+	eval := Eval(tree, env)
+	return eval[len(eval)-1]
 }
 
 func TestIntegerExpression(t *testing.T) {
@@ -160,10 +163,11 @@ func TestErrorHandling(t *testing.T) {
 		expect string
 	}{
 		{"1 + benar;", "ERROR di baris 1: kesalahan tipe dekat '1 + benar'"},
-		{"1 + benar; 2;", "ERROR di baris 1: kesalahan tipe dekat '1 + benar'"},
+		{"1 + benar;", "ERROR di baris 1: kesalahan tipe dekat '1 + benar'"},
 		{"salah + benar;", "ERROR di baris 1: operator tidak didukung dekat 'salah + benar'"},
 		{"-benar;", "ERROR di baris 1: operator tidak didukung dekat '-benar'"},
 		{"salah + benar;", "ERROR di baris 1: operator tidak didukung dekat 'salah + benar'"},
+		{"foo;", "ERROR di baris 1: pengenal tidak diketahui dekat 'foo'"},
 		{`
 		jika(1 < 2) {
 			jika (1 < 3) {
@@ -173,15 +177,35 @@ func TestErrorHandling(t *testing.T) {
 		}
 		`, "ERROR di baris 4: operator tidak didukung dekat 'benar - salah'"},
 	}
-	for _, tt := range test {
+	for i, tt := range test {
 		eval := testVal(tt.in)
 		e, ok := eval.(*object.Error)
 		if !ok {
-			t.Errorf("eval is not *object.Error. got: %T", eval)
+			t.Errorf("ERROR in (%d): eval is not *object.Error. got: %T", i, eval)
 		}
 		if e.Inspect() != tt.expect {
 			t.Fatalf("e.Msg is not: '%s'. got: %s", tt.expect, e.Inspect())
 		}
+	}
+}
+
+func TestBuatStatement(t *testing.T) {
+	test := []struct {
+		in     string
+		expect int
+	}{
+		{"buat a = 5; a;", 5},
+		{"buat a = 5 * 5; a;", 25},
+		{"buat a = 5; buat b = a; b;", 5},
+		{`buat a = 5; buat b = a; buat c = a + b + 5;`, 15},
+	}
+	for _, tt := range test {
+		eval := testVal(tt.in)
+		i, ok := eval.(*object.Integer)
+		if !ok {
+			t.Fatalf("eval is not *object.Integer. got: %T", eval)
+		}
+		testIntegerObject(t, i, tt.expect)
 	}
 }
 

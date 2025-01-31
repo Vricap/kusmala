@@ -1,3 +1,8 @@
-"Helo" + 1;
+buat a = 1;
+buat b = 2;
 
-cetak("Halo " + "Dunia");
+jika (a < b) {
+	buat c = a + b;
+}
+
+cetak(c);
