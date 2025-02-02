@@ -1,7 +1,7 @@
 buat a = 1;
 buat b = 2;
 
-buat f = fungsi (x, y) { 
+buat f = fungsi (x, y) { // fungsi literal
 	jika (x > y) {
 		kembalikan x;
 	} lainnya {
@@ -10,4 +10,4 @@ buat f = fungsi (x, y) {
 }
 
 buat c = f(a, b);
-cetak(28 / 7 * 2, 15 * 3);
+cetak(c); // cetak akan mengeluarkan hasil ke stdout

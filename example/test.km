@@ -1,7 +1,7 @@
 buat a = 1;
 buat b = 2;
 
-buat kalikan = fungsi(x, y) {
+buat kalikan = fungsi(x, y) { // ini adalah sebuah komen
 	buat a = x;
 	buat b = y;
 	kembalikan a * b;

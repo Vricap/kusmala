@@ -21,6 +21,9 @@ func NewLex(input string) *Lexer {
 func (lex *Lexer) NextToken() token.Token {
 	var tok token.Token
 	lex.skipWhiteSpace()
+	if lex.isComment() {
+		lex.skipComment()
+	}
 
 	switch lex.char {
 	case '=':
@@ -139,6 +142,18 @@ func (lex *Lexer) skipNewLine() {
 			lex.skipSpace()
 		}
 	}
+}
+
+func (lex *Lexer) isComment() bool {
+	return lex.char == '/' && lex.peekChar() == '/'
+}
+
+func (lex *Lexer) skipComment() {
+	for lex.char != '\n' {
+		lex.readChar()
+	}
+	lex.Line++
+	lex.skipWhiteSpace()
 }
 
 func (lex *Lexer) peekChar() byte {
