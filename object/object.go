@@ -1,6 +1,12 @@
 package object
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"strings"
+
+	"github.com/vricap/kusmala/ast"
+)
 
 type ObjectType string
 
@@ -12,6 +18,7 @@ const (
 	OBJECT_ERR                   = "ERROR"
 	OBJECT_STRING                = "STRING"
 	OBEJCT_IDENTIFIER            = "IDENTIFIER"
+	OBJECT_FUNGSI                = "FUNGSI"
 )
 
 type Object interface {
@@ -133,16 +140,55 @@ func NewEnv() *Environment {
 	return &Environment{store: s}
 }
 
-// TODO: the environment doesn't have idea about global scope or block scope.
 type Environment struct {
-	store map[string]Object
+	store  map[string]Object
+	master *Environment // the master Environment of this Environment if any
+}
+
+func NewChildEnv(master *Environment) *Environment {
+	child := NewEnv()
+	child.master = master
+	return child
 }
 
 func (e *Environment) Get(name string) (Object, bool) {
 	obj, ok := e.store[name]
+	if e.master != nil && !ok { // if the ident if not exist in this env AND this env have master, we will return the master one.
+		obj, ok := e.master.store[name]
+		return obj, ok
+	}
 	return obj, ok
 }
 func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
+}
+
+type FungsiLiteral struct {
+	Param []*ast.Identifier
+	Body  *ast.BlockStatement
+	Env   *Environment
+	Ln    int
+}
+
+func (fl *FungsiLiteral) Line() int {
+	return fl.Ln
+}
+func (fl *FungsiLiteral) Type() ObjectType {
+	return OBJECT_FUNGSI
+}
+
+func (fl *FungsiLiteral) Inspect() string {
+	var out bytes.Buffer
+	params := []string{}
+	for _, p := range fl.Param {
+		params = append(params, p.TokenLiteral())
+	}
+	out.WriteString("fn")
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") {\n")
+	out.WriteString(fl.Body.TokenLiteral())
+	out.WriteString("\n}")
+	return out.String()
 }

@@ -16,8 +16,8 @@ func Eval(tree *ast.Tree, env *object.Environment) []object.Object {
 			ret_obj = nil
 		}
 		if err, ok := eval.(*object.Error); ok {
-			fmt.Println("\t" + err.Inspect())
-			break // TODO: remove this when running test case
+			fmt.Println("\t", err.Inspect())
+			// break // TODO: remove this when running test case
 		}
 		evals = append(evals, eval)
 	}
@@ -61,8 +61,18 @@ func evalExpression(expr ast.Expression, env *object.Environment) object.Object 
 		return evalInfixExpression(e.Operator, left, right)
 	case *ast.BooleanLiteral:
 		return &object.Boolean{Value: e.Value, Ln: e.Ln}
-	// case *ast.FungsiExpression:
-	// case *ast.CallExpression:
+	case *ast.FungsiExpression:
+		return evalFungsiLiteral(e, env)
+	case *ast.CallExpression:
+		fn := evalExpression(e.Function, env) // return the function ident name
+		if fn.Type() == object.OBJECT_ERR {
+			return fn
+		}
+		args := evalArguments(e.Arguments, env)
+		if len(args) == 1 && args[0].Type() == object.OBJECT_ERR { // if there's error
+			return args[0]
+		}
+		return runFunction(fn, args)
 	case *ast.StringLiteral:
 		return &object.String{Value: e.Value, Ln: e.Ln}
 	default:
@@ -162,6 +172,7 @@ func evalIdentifier(i *ast.Identifier, env *object.Environment) object.Object {
 	return val
 }
 
+// TODO: the environment in jika statement doesn't have idea about global scope or block scope.
 func evalJikaStatement(jk *ast.JikaStatement, env *object.Environment) object.Object {
 	cond := evalExpression(jk.Condition, env)
 	if condIsTrue(cond) {
@@ -171,6 +182,42 @@ func evalJikaStatement(jk *ast.JikaStatement, env *object.Environment) object.Ob
 	} else {
 		return &object.Nil{}
 	}
+}
+
+func evalFungsiLiteral(fl *ast.FungsiExpression, env *object.Environment) object.Object {
+	return &object.FungsiLiteral{Param: fl.Params, Body: fl.Body, Env: env, Ln: fl.Line()}
+}
+
+func evalArguments(a []ast.Expression, env *object.Environment) []object.Object {
+	var obj []object.Object
+	for _, e := range a {
+		eval := evalExpression(e, env)
+		if eval.Type() == object.OBJECT_ERR {
+			return []object.Object{eval}
+		}
+		obj = append(obj, eval)
+	}
+	return obj
+}
+
+func runFunction(fn object.Object, args []object.Object) object.Object {
+	f, ok := fn.(*object.FungsiLiteral)
+	if !ok {
+		return newError("bukan sebuah fungsi", fn.Inspect(), fn.Line())
+	}
+
+	childEnv := extendFuncEnv(f, args)
+	eval := evalStatement(f.Body, childEnv)
+	return eval
+}
+
+func extendFuncEnv(f *object.FungsiLiteral, args []object.Object) *object.Environment {
+	env := object.NewChildEnv(f.Env)
+	// TODO: maybe check if args len is same as params len
+	for i, p := range f.Param {
+		env.Set(p.Value, args[i]) // assign each params ident to arguments value
+	}
+	return env
 }
 
 // TODO: goodluck trying to understand all of this
@@ -190,8 +237,8 @@ func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment) object.
 			return ret_obj
 		}
 		obj = evalStatement(s, env)
-		if err, ok := obj.(*object.Error); ok {
-			fmt.Println("\t" + err.Inspect())
+		if obj.Type() == object.OBJECT_ERR {
+			// fmt.Println("\t", err.Inspect())
 			continue // so that all error from the blocks from parent to all its child is outputted. change to break to negate
 		}
 	}
@@ -207,16 +254,16 @@ func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.
 	var obj object.Object
 	for _, e := range cs.Expression {
 		obj = evalExpression(e, env)
+		if obj.Type() == object.OBJECT_ERR {
+			return obj
+		}
+
 		// cetak statement is just calling Go fmt.Println
 		fmt.Print(obj.Inspect() + " ")
 	}
 	fmt.Print("\n")
 	// only return the last expression
 	return obj
-}
-
-func printEval(eval object.Object) {
-	fmt.Printf("%s\n", eval.Inspect())
 }
 
 func condIsTrue(cond object.Object) bool {

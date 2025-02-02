@@ -23,6 +23,7 @@ func Start(in io.Reader, out io.Writer, DEV_MODE bool) {
 	fmt.Printf("Halo %s! Ini adalah bahasa pemrograman KUSMALA!\n", user.Username)
 	fmt.Println("Silahkan untuk mengetik program.")
 	scanner := bufio.NewScanner(in)
+	env := object.NewEnv()
 
 	for {
 		fmt.Printf(PROMPT)
@@ -44,7 +45,6 @@ func Start(in io.Reader, out io.Writer, DEV_MODE bool) {
 			printParsingError(pars.Errors, out)
 			continue
 		}
-		env := object.NewEnv()
 		evals := evaluator.Eval(tree, env)
 		if evals != nil {
 			printEval(evals, out)

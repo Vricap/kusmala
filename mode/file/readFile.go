@@ -17,7 +17,7 @@ func Read(arg []string, DEV_MODE bool) {
 	env := object.NewEnv()
 	evals := evaluator.Eval(tree, env)
 	if evals != nil {
-		printEval(evals)
+		// printEval(evals)
 	}
 	if len(arg) > 2 {
 		switch arg[2] {
@@ -71,7 +71,7 @@ func printDevError(err []string) {
 }
 
 func printEval(evals []object.Object) {
-	// for _, eval := range evals {
-	// 	fmt.Printf("%s\n", eval.Inspect())
-	// }
+	for _, eval := range evals {
+		fmt.Printf("%s\n", eval.Inspect())
+	}
 }

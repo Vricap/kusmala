@@ -209,6 +209,55 @@ func TestBuatStatement(t *testing.T) {
 	}
 }
 
+func TestFungsiLiteral(t *testing.T) {
+	in := `fungsi(x) { x + 2; };`
+	eval := testVal(in)
+	fl, ok := eval.(*object.FungsiLiteral)
+	if !ok {
+		t.Fatalf("eval is not *object.FungsiLiteral. got: %T", eval)
+	}
+	if len(fl.Param) != 1 {
+		t.Fatalf("len(fl.Param) is not 1. got: %d", len(fl.Param))
+	}
+	if fl.Param[0].Value != "x" {
+		t.Fatalf("fl.Param[0].Value is not 'x'. got: %s", fl.Param[0].Value)
+	}
+	// expectBody := `(x + 2)`
+	// if fl.Body.TokenLiteral() != expectBody {
+	// 	t.Fatalf("fl.Body.TokenLiteral() is not %s. got: %s", expectBody, fl.Body.TokenLiteral())
+	// }
+
+}
+
+func TestFungsiCall(t *testing.T) {
+	test := []struct {
+		in     string
+		expect int
+	}{
+		{"buat identity = fungsi(x) { x; }; identity(5);", 5},
+		{"buat identity = fungsi(x) { kembalikan x; }; identity(5);", 5},
+		{"buat double = fungsi(x) { x * 2; }; double(5);", 10},
+		{"buat add = fungsi(x, y) { x + y; }; add(5, 5);", 10},
+		{"buat add = fungsi(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20},
+		{"fungsi(x) { x; }(5)", 5},
+	}
+	for _, tt := range test {
+		eval := testVal(tt.in)
+		testIntegerObject(t, eval, tt.expect)
+	}
+}
+
+func TestClosures(t *testing.T) {
+	input := `
+buat newAdder = fungsi(x) {
+fungsi(y) { x + y };
+};
+buat addTwo = newAdder(2);
+addTwo(2);`
+
+	testIntegerObject(t, testVal(input), 4)
+}
+
 func testIntegerObject(t *testing.T, eval object.Object, expect int) {
 	i, ok := eval.(*object.Integer)
 	if !ok {

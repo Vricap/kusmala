@@ -1,8 +1,11 @@
 buat a = 1;
 buat b = 2;
 
-jika (a < b) {
-	buat c = a + b;
+buat kalikan = fungsi(x, y) {
+	buat a = x;
+	buat b = y;
+	kembalikan a * b;
 }
 
-cetak(c);
+buat c = kalikan(10, 10 * 1);
+cetak(d);
