@@ -98,15 +98,6 @@ AST_TREE:
 
   CETAK_STATEMENT: 
     EXPRESSION: 
-      INFIX_EXPRESSION:
-        INFIX_EXPRESSION:
-          INTEGER_LITERAL: 28
-          OEPERATOR: /
-          INTEGER_LITERAL: 7
-        OEPERATOR: *
-        INTEGER_LITERAL: 2
-      INFIX_EXPRESSION:
-        INTEGER_LITERAL: 15
-        OEPERATOR: *
-        INTEGER_LITERAL: 3
+      STRING_LITERAL: Nilai terbesar ialah:
+      IDENT: c
 ```  
