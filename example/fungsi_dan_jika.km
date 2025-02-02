@@ -10,4 +10,4 @@ buat f = fungsi (x, y) { // fungsi literal
 }
 
 buat c = f(a, b);
-cetak(c); // cetak akan mengeluarkan hasil ke stdout
+cetak("Nilai terbesar ialah:", c); // cetak akan mengeluarkan hasil ke stdout

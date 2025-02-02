@@ -34,11 +34,11 @@ Menjalankan kusmala tanpa argumen akan membuka REPL:
 
 ### Contoh Kode  
 ```
-buat a = 1;
+buat a = 1; // pemberian nilai ke variabel
 buat b = 2;
 
-buat f = fungsi (x, y) { 
-	jika (x > y) {
+buat f = fungsi (x, y) { // fungsi literal
+	jika (x > y) { // kondisional 
 		kembalikan x;
 	} lainnya {
 		kembalikan y;
@@ -46,13 +46,13 @@ buat f = fungsi (x, y) {
 }
 
 buat c = f(a, b);
-cetak("Hasilnya adalah: ", 28 / 7 * 2, 15 * 3);
+cetak("Nilai terbesar ialah:", c); // cetak akan mengeluarkan hasil ke stdout
 ```  
 
 Menjalankan kode dari file:  
 ```
 $ ./bin/kusmala ./example/fungsi_dan_jika.km  
-Hasilnya adalah: 8 45
+Nilai terbesar ialah: 2
 ```  
 Tempatkan lokasi file pada argumen ke dua.  
 
