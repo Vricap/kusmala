@@ -17,7 +17,7 @@ func Eval(tree *ast.Tree, env *object.Environment) []object.Object {
 		}
 		if err, ok := eval.(*object.Error); ok {
 			fmt.Println("\t", err.Inspect())
-			// break // TODO: remove this when running test case
+			break // TODO: remove this when running test case
 		}
 		evals = append(evals, eval)
 	}
@@ -237,8 +237,8 @@ func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment) object.
 			return ret_obj
 		}
 		obj = evalStatement(s, env)
-		if obj.Type() == object.OBJECT_ERR {
-			// fmt.Println("\t", err.Inspect())
+		if err, ok := obj.(*object.Error); ok {
+			fmt.Println("\t", err.Inspect())
 			continue // so that all error from the blocks from parent to all its child is outputted. change to break to negate
 		}
 	}

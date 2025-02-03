@@ -1,6 +1,6 @@
 jika (10 > 1) {
 	jika (10 > 1) {
-		cetak("DIBAWAH ADALAH ERROR: ");
+		cetak("DIBAWAH ADALAH ERROR: "); // compiler akan berhenti pada baris 9
 		1 + benar;
 		jika (3 < 2) {
 			kembalikan 10;

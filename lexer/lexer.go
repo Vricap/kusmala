@@ -23,6 +23,7 @@ func (lex *Lexer) NextToken() token.Token {
 	lex.skipWhiteSpace()
 	if lex.isComment() {
 		lex.skipComment()
+		lex.skipWhiteSpace()
 	}
 
 	switch lex.char {
@@ -136,8 +137,8 @@ func (lex *Lexer) skipSpace() {
 
 func (lex *Lexer) skipNewLine() {
 	for lex.char == '\n' || lex.char == '\r' {
-		lex.Line++
 		lex.readChar()
+		lex.Line++
 		if lex.char == ' ' || lex.char == '\t' {
 			lex.skipSpace()
 		}
@@ -149,11 +150,9 @@ func (lex *Lexer) isComment() bool {
 }
 
 func (lex *Lexer) skipComment() {
-	for lex.char != '\n' {
+	for lex.char != 10 {
 		lex.readChar()
 	}
-	lex.Line++
-	lex.skipWhiteSpace()
 }
 
 func (lex *Lexer) peekChar() byte {
