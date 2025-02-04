@@ -1,0 +1,9 @@
+buat faktorial = fungsi(x) {
+	jika(x == 1) {
+		kembalikan 1;
+	}
+	kembalikan x * faktorial(x - 1);
+}
+
+buat nilai = faktorial(5);
+cetak(nilai);
