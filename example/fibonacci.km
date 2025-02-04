@@ -1,0 +1,11 @@
+buat fib = fungsi(n) {
+	cetak(n);
+	jika(n < 1) {
+		kembalikan n;
+	}
+	
+	kembalikan fib(n - 1) + fib(n - 2);
+}
+
+buat maks = 144;
+fib(maks);
