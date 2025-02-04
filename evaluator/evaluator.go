@@ -54,10 +54,19 @@ func evalExpression(expr ast.Expression, env *object.Environment) object.Object 
 		return &object.Integer{Value: e.Value, Ln: e.Ln}
 	case *ast.PrefixExpression:
 		right := evalExpression(e.Right, env)
+		if k, ok := right.(*object.Kembalikan); ok {
+			right = k.Value
+		}
 		return evalPrefixExpression(e.Operator, right)
 	case *ast.InfixExpression:
 		left := evalExpression(e.Left, env)
 		right := evalExpression(e.Right, env)
+		if k, ok := left.(*object.Kembalikan); ok {
+			left = k.Value
+		}
+		if k, ok := right.(*object.Kembalikan); ok {
+			right = k.Value
+		}
 		return evalInfixExpression(e.Operator, left, right)
 	case *ast.BooleanLiteral:
 		return &object.Boolean{Value: e.Value, Ln: e.Ln}
