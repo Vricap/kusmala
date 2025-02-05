@@ -34,7 +34,7 @@ Menjalankan kusmala tanpa argumen akan membuka REPL:
 
 ### Contoh Kode  
 ```
-buat faktorial = fungsi(x) { 							// fungsi literal
+buat faktorial = fungsi(x) {							// fungsi literal
 	jika(x == 1) {										// kondisional
 		kembalikan 1;
 	}
