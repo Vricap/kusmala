@@ -1,3 +1,5 @@
 buat unary = -1;
 buat binary = unary * 10;
 buat kombinasi = 4 + unary * binary
+
+cetak(unary, binary, kombinasi);

@@ -1,9 +1,9 @@
 jika (10 > 1) {
 	jika (10 > 1) {
-		cetak("Halo Dunia!");
 		jika (3 < 2) {
 			kembalikan 10;
 		} lainnya {
+			cetak("Halo Dunia!");
 			kembalikan 4;
 		}
 	}
