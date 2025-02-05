@@ -34,15 +34,15 @@ Menjalankan kusmala tanpa argumen akan membuka REPL:
 
 ### Contoh Kode  
 ```
-buat faktorial = fungsi(x) {			// fungsi literal
-	jika(x == 1) {						// kondisional
+buat faktorial = fungsi(x) {	// fungsi literal
+	jika(x == 1) {				// kondisional
 		kembalikan 1;
 	}
 	kembalikan x * faktorial(x - 1);	// rekursif
 }
 
 buat nilai = 5;
-buat hasil = faktorial(nilai);			// pemanggilan fungsi
+buat hasil = faktorial(nilai);	// pemanggilan fungsi
 cetak("Hasil dari faktorial", nilai, "adalah", hasil);	// cetak akan mengeluarkan hasil ke stdout
 ```  
 
