@@ -1,11 +1,12 @@
-buat fib = fungsi(n) {
-	cetak(n);
-	jika(n < 1) {
-		kembalikan n;
+// fungsi rekursif untuk generate barisan fibonacci
+buat fib = fungsi(a, b, limit) {
+	jika(a > limit) {
+		kembalikan a;
+	} lainnya {	
+		cetak(a, " ");
+		fib(b, a + b, limit);
 	}
-	
-	kembalikan fib(n - 1) + fib(n - 2);
 }
 
-buat maks = 144;
-fib(maks);
+buat num = 8;
+fib(0, 1, num);
