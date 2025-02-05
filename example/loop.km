@@ -1,0 +1,12 @@
+// kusmala belum tersedia loop, kita akali dengan rekursif
+
+buat loop = fungsi(start, end) {
+	jika(start > end) {
+		kembalikan start;
+	}
+	
+	cetak(start);
+	kembalikan loop(start + 1, end);
+}
+
+loop(1, 10);
