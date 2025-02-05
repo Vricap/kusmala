@@ -34,70 +34,72 @@ Menjalankan kusmala tanpa argumen akan membuka REPL:
 
 ### Contoh Kode  
 ```
-buat a = 1; // pemberian nilai ke variabel
-buat b = 2;
-
-buat f = fungsi (x, y) { // fungsi literal
-	jika (x > y) { // kondisional 
-		kembalikan x;
-	} lainnya {
-		kembalikan y;
+buat faktorial = fungsi(x) { 							// fungsi literal
+	jika(x == 1) {										// kondisional
+		kembalikan 1;
 	}
+	kembalikan x * faktorial(x - 1);					// rekursif
 }
 
-buat c = f(a, b);
-cetak("Nilai terbesar ialah:", c); // cetak akan mengeluarkan hasil ke stdout
+buat nilai = 5;
+buat hasil = faktorial(nilai);							// pemanggilan fungsi
+cetak("Hasil dari faktorial", nilai, "adalah", hasil);	// cetak akan mengeluarkan hasil ke stdout
 ```  
 
 Menjalankan kode dari file:  
 ```
-$ ./bin/kusmala ./example/fungsi_dan_jika.km  
-Nilai terbesar ialah: 2
+$ ./bin/kusmala ./example/faktorial.km  
+Hasil dari faktorial 5 adalah 120
 ```  
 Tempatkan lokasi file pada argumen ke dua.  
 
 Gunakan argumen `-tree` untuk mencetak pohon AST dari kode:  
 ```
-$ ./bin/kusmala ./example/fungsi_dan_jika.km -tree  
+$ ./bin/kusmala ./example/faktorial.km -tree  
 AST_TREE:
   BUAT_STATEMENT:
-    IDENT: a
-    INTEGER_LITERAL: 1
-
-  BUAT_STATEMENT:
-    IDENT: b
-    INTEGER_LITERAL: 2
-
-  BUAT_STATEMENT:
-    IDENT: f
+    IDENT: faktorial
     FUNGSI_EXPRESSION: 
       PARAMS: 
         IDENT: x
-        IDENT: y
       FUNGSI_BODY: 
         JIKA_STATEMENT:
           CONDITION:
             INFIX_EXPRESSION:
               IDENT: x
-              OEPERATOR: >
-              IDENT: y
+              OEPERATOR: ==
+              INTEGER_LITERAL: 1
             JIKA_BLOCK: 
               KEMBALIKAN_STATEMENT:
-                IDENT: x
-            LAINNYA_BLOCK: 
-              KEMBALIKAN_STATEMENT:
-                IDENT: y
+                INTEGER_LITERAL: 1
+
+        KEMBALIKAN_STATEMENT:
+          INFIX_EXPRESSION:
+            IDENT: x
+            OEPERATOR: *
+            CALL_EXPRESSION: 
+              IDENT: faktorial
+              ARGUMENTS: 
+                INFIX_EXPRESSION:
+                  IDENT: x
+                  OEPERATOR: -
+                  INTEGER_LITERAL: 1
 
   BUAT_STATEMENT:
-    IDENT: c
+    IDENT: nilai
+    INTEGER_LITERAL: 5
+
+  BUAT_STATEMENT:
+    IDENT: hasil
     CALL_EXPRESSION: 
-      IDENT: f
+      IDENT: faktorial
       ARGUMENTS: 
-        IDENT: a
-        IDENT: b
+        IDENT: nilai
 
   CETAK_STATEMENT: 
     EXPRESSION: 
-      STRING_LITERAL: Nilai terbesar ialah:
-      IDENT: c
+      STRING_LITERAL: Hasil dari faktorial
+      IDENT: nilai
+      STRING_LITERAL: adalah
+      IDENT: hasil
 ```  
