@@ -1,9 +1,10 @@
-buat faktorial = fungsi(x) {
-	jika(x == 1) {
+buat faktorial = fungsi(x) { 							// fungsi literal
+	jika(x == 1) {										// kondisional
 		kembalikan 1;
 	}
-	kembalikan x * faktorial(x - 1);
+	kembalikan x * faktorial(x - 1);					// rekursif
 }
 
-buat nilai = faktorial(5);
-cetak(nilai);
+buat nilai = 5;
+buat hasil = faktorial(nilai);							// pemanggilan fungsi
+cetak("Hasil dari faktorial", nilai, "adalah", hasil);	// cetak akan mengeluarkan hasil ke stdout
