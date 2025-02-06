@@ -77,11 +77,7 @@ func evalExpression(expr ast.Expression, env *object.Environment) object.Object 
 		if fn.Type() == object.OBJECT_ERR {
 			return fn
 		}
-		args := evalArguments(e.Arguments, env)
-		if len(args) == 1 && args[0].Type() == object.OBJECT_ERR { // if there's error
-			return args[0]
-		}
-		return runFunction(fn, args)
+		return runFunction(fn, e, env)
 	case *ast.StringLiteral:
 		return &object.String{Value: e.Value, Ln: e.Ln}
 	default:
@@ -209,12 +205,19 @@ func evalArguments(a []ast.Expression, env *object.Environment) []object.Object 
 	return obj
 }
 
-func runFunction(fn object.Object, args []object.Object) object.Object {
+func runFunction(fn object.Object, e *ast.CallExpression, env *object.Environment) object.Object {
+	args := evalArguments(e.Arguments, env)
+	if len(args) == 1 && args[0].Type() == object.OBJECT_ERR { // if there's error
+		return args[0]
+	}
 	f, ok := fn.(*object.FungsiLiteral)
 	if !ok {
 		return newError("bukan sebuah fungsi", fn.Inspect(), fn.Line())
 	}
-
+	if len(args) != len(f.Param) {
+		s := fmt.Sprintf("fungsi membutuhkan %d parameter namun menemukan %d argumen", len(f.Param), len(args))
+		return newError(s, e.TokenLiteral(), e.Line())
+	}
 	childEnv := extendFuncEnv(f, args)
 	eval := evalStatement(f.Body, childEnv)
 	return eval
@@ -222,7 +225,6 @@ func runFunction(fn object.Object, args []object.Object) object.Object {
 
 func extendFuncEnv(f *object.FungsiLiteral, args []object.Object) *object.Environment {
 	env := object.NewChildEnv(f.Env)
-	// TODO: maybe check if args len is same as params len
 	for i, p := range f.Param {
 		env.Set(p.Value, args[i]) // assign each params ident to arguments value
 	}

@@ -1,6 +1,9 @@
 package ast
 
 import (
+	"bytes"
+	"strings"
+
 	"github.com/vricap/kusmala/token"
 )
 
@@ -208,7 +211,16 @@ type CallExpression struct {
 }
 
 func (ce *CallExpression) TokenLiteral() string {
-	return ce.Token.Literal
+	var out bytes.Buffer
+	params := []string{}
+	for _, p := range ce.Arguments {
+		params = append(params, p.TokenLiteral())
+	}
+	out.WriteString(ce.Function.TokenLiteral())
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(")")
+	return out.String()
 }
 func (ce *CallExpression) expressionNode() {}
 func (bs *CallExpression) Line() int       { return bs.Ln }
