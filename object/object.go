@@ -19,6 +19,7 @@ const (
 	OBJECT_STRING                = "STRING"
 	OBEJCT_IDENTIFIER            = "IDENTIFIER"
 	OBJECT_FUNGSI                = "FUNGSI"
+	OBJECT_JIKA                  = "JIKA"
 )
 
 type Object interface {
@@ -162,6 +163,21 @@ func (e *Environment) Get(name string) (Object, bool) {
 func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
+}
+
+type JikaStatement struct {
+	Env *Environment
+	Ln  int
+}
+
+func (js *JikaStatement) Line() int {
+	return js.Ln
+}
+func (js *JikaStatement) Type() ObjectType {
+	return OBJECT_JIKA
+}
+func (js *JikaStatement) Inspect() string {
+	return "jika"
 }
 
 type FungsiLiteral struct {
