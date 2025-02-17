@@ -22,8 +22,10 @@ func (lex *Lexer) NextToken() token.Token {
 	var tok token.Token
 	lex.skipWhiteSpace()
 	if lex.isComment() {
-		lex.skipComment()
-		lex.skipWhiteSpace()
+		for lex.isComment() {
+			lex.skipComment()
+			lex.skipWhiteSpace()
+		}
 	}
 
 	switch lex.char {
@@ -150,7 +152,7 @@ func (lex *Lexer) isComment() bool {
 }
 
 func (lex *Lexer) skipComment() {
-	for lex.char != 10 {
+	for lex.char != 10 { // 10 ascii code for new line
 		lex.readChar()
 	}
 }
