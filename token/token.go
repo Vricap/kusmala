@@ -41,6 +41,7 @@ const (
 	LAINNYA    TokenType = "LAINNYA"
 	KEMBALIKAN TokenType = "KEMBALIKAN"
 	CETAK      TokenType = "CETAK"
+	PANJANG    TokenType = "PANJANG"
 )
 
 type Token struct {
@@ -61,6 +62,7 @@ var keywords = map[string]TokenType{
 	"lainnya":    LAINNYA,
 	"kembalikan": KEMBALIKAN,
 	"cetak":      CETAK,
+	"panjang":    PANJANG,
 }
 
 func LookUpIdent(lit string) TokenType {

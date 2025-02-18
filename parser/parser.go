@@ -70,6 +70,7 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerPrefix(token.BENAR, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.SALAH, pars.parsBooleanLiteral)
 	pars.registerPrefix(token.FUNGSI, pars.parsFungsiLiteral)
+	pars.registerPrefix(token.PANJANG, pars.parsPanjangFungsi)
 	pars.registerPrefix(token.STRING, pars.parsStringLiteral)
 
 	// i decide if-else is a statement and NOT a expression
@@ -409,6 +410,26 @@ func (pars *Parser) parsParams() []*ast.Identifier {
 		pars.currError(token.RPAREN, pars.lex.Line)
 	}
 	return iden
+}
+
+func (pars *Parser) parsPanjangFungsi() ast.Expression {
+	pf := &ast.PanjangFungsi{Token: pars.currToken, Ln: pars.lex.Line}
+	if !pars.expectPeek(token.LPAREN) {
+		pars.peekError(token.LPAREN, pars.lex.Line)
+	}
+	pars.parsNextToken()
+	if !pars.expectPeek(token.STRING) {
+		pars.Errors = append(pars.Errors, fmt.Sprintf("ERROR di baris %d:\n\tFungsi 'panjang' hanya menerima argumen tipe string, tetapi menemukan '%s'", pars.lex.Line, pars.peekToken.Literal))
+		// pars.peekError(token.STRING, pars.lex.Line)
+	}
+	pars.parsNextToken()
+	pf.Argument = pars.currToken.Literal
+	if !pars.expectPeek(token.RPAREN) {
+		pars.peekError(token.RPAREN, pars.lex.Line)
+	}
+	pars.parsNextToken()
+
+	return pf
 }
 
 // add(1, 2 * 3, 1 - 2)`

@@ -238,3 +238,17 @@ func (s *StringLiteral) expressionNode() {}
 func (s *StringLiteral) Line() int {
 	return s.Ln
 }
+
+type PanjangFungsi struct {
+	Token    token.Token
+	Argument string
+	Ln       int
+}
+
+func (pf *PanjangFungsi) TokenLiteral() string {
+	return pf.Token.Literal
+}
+func (pf *PanjangFungsi) expressionNode() {}
+func (pf *PanjangFungsi) Line() int {
+	return pf.Ln
+}

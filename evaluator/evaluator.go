@@ -71,6 +71,8 @@ func evalExpression(expr ast.Expression, env *object.Environment) object.Object 
 		return runFunction(fn, e, env)
 	case *ast.StringLiteral:
 		return &object.String{Value: e.Value, Ln: e.Ln}
+	case *ast.PanjangFungsi:
+		return evalPanjangFungsi(e, e.Ln)
 	default:
 		return newError("ekspresi tidak diketahui atau tidak ditempatnya", e.TokenLiteral(), e.Line())
 	}
@@ -275,6 +277,10 @@ func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.
 	fmt.Print("\n")
 	// only return the last expression
 	return obj
+}
+
+func evalPanjangFungsi(e *ast.PanjangFungsi, l int) object.Object {
+	return &object.Integer{Ln: l, Value: len(e.Argument)}
 }
 
 func condIsTrue(cond object.Object) bool {

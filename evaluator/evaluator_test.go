@@ -258,6 +258,36 @@ addTwo(2);`
 	testIntegerObject(t, testVal(input), 4)
 }
 
+func TestFungsiBawaan(t *testing.T) {
+	test := []struct {
+		in     string
+		expect any
+	}{
+		{`panjang("")`, 0},
+		{`panjang("foo bar")`, 4},
+		{`panjang(1)`, "ERROR di baris 1: kesalahan tipe, hanya menerima string dekat 'panjang(1)'"},
+		{`panjang("foo", "bar")`, `ERROR di baris 1: kesalahan argumen, hanya menerima 1 argumen dekat 'panjang("foo", "bar")'`},
+	}
+	for _, tt := range test {
+		eval := testVal(tt.in)
+		switch expect := tt.expect.(type) {
+		case int:
+			testIntegerObject(t, eval, int(expect))
+		case string:
+			errObj, ok := eval.(*object.Error)
+			if !ok {
+				t.Errorf("object is not Error. got=%T (%+v)",
+					eval, eval)
+				continue
+			}
+			if errObj.Msg != expect {
+				t.Errorf("wrong error message. expect=%q, got=%q",
+					expect, errObj.Msg)
+			}
+		}
+	}
+}
+
 func testIntegerObject(t *testing.T, eval object.Object, expect int) {
 	i, ok := eval.(*object.Integer)
 	if !ok {

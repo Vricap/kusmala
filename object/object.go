@@ -9,6 +9,7 @@ import (
 )
 
 type ObjectType string
+type FungsiBawaan func(args ...Object) Object
 
 const (
 	OBJECT_INTEGER    ObjectType = "INTEGER"
@@ -20,6 +21,7 @@ const (
 	OBEJCT_IDENTIFIER            = "IDENTIFIER"
 	OBJECT_FUNGSI                = "FUNGSI"
 	OBJECT_JIKA                  = "JIKA"
+	OBEJCT_BUILTIN               = "BUILTIN"
 )
 
 type Object interface {
@@ -207,4 +209,15 @@ func (fl *FungsiLiteral) Inspect() string {
 	out.WriteString(fl.Body.TokenLiteral())
 	out.WriteString("\n}")
 	return out.String()
+}
+
+type Bawaan struct {
+	Fn FungsiBawaan
+}
+
+func (b *Bawaan) Type() ObjectType {
+	return OBEJCT_BUILTIN
+}
+func (b *Bawaan) Inspect() string {
+	return "fungsi bawaan"
 }
