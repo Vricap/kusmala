@@ -1,5 +1,4 @@
 # kusmala  
-**masih dalam pengembangan*  
 
 id:  
 Sebuah bahasa pemrograman interpretasi dengan penegasan pada Bahasa Indonesia. Ditulis dalam Go.  
