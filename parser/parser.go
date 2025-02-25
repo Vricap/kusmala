@@ -424,12 +424,8 @@ func (pars *Parser) parsPanjangFungsi() ast.Expression {
 		pars.peekError(token.LPAREN, pars.lex.Line)
 	}
 	pars.parsNextToken()
-	if !pars.expectPeek(token.STRING) {
-		pars.Errors = append(pars.Errors, fmt.Sprintf("ERROR di baris %d:\n\tFungsi 'panjang' hanya menerima argumen tipe string, tetapi menemukan '%s'", pars.lex.Line, pars.peekToken.Literal))
-		// pars.peekError(token.STRING, pars.lex.Line)
-	}
 	pars.parsNextToken()
-	pf.Argument = pars.currToken.Literal
+	pf.Argument = pars.parsExpression(LOWEST)
 	if !pars.expectPeek(token.RPAREN) {
 		pars.peekError(token.RPAREN, pars.lex.Line)
 	}

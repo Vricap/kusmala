@@ -72,7 +72,7 @@ func evalExpression(expr ast.Expression, env *object.Environment) object.Object 
 	case *ast.StringLiteral:
 		return &object.String{Value: e.Value, Ln: e.Ln}
 	case *ast.PanjangFungsi:
-		return evalPanjangFungsi(e, e.Ln)
+		return evalPanjangFungsi(e, e.Ln, env)
 	case *ast.ArrayLiteral:
 		return evalArray(e, e.Ln, env)
 	case *ast.IndexExpression:
@@ -304,8 +304,19 @@ func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.
 	return obj
 }
 
-func evalPanjangFungsi(e *ast.PanjangFungsi, l int) object.Object {
-	return &object.Integer{Ln: l, Value: len(e.Argument)}
+func evalPanjangFungsi(e *ast.PanjangFungsi, l int, env *object.Environment) object.Object {
+	arg := evalExpression(e.Argument, env)
+	if arg.Type() != object.OBJECT_STRING && arg.Type() != object.OBJECT_ARRAY {
+		return newError("argumen panjang hanya menerima string atau array", arg.Inspect(), l)
+	}
+	var val int
+	switch a := arg.(type) {
+	case *object.Array:
+		val = len(a.El)
+	case *object.String:
+		val = len(a.Value)
+	}
+	return &object.Integer{Ln: l, Value: val}
 }
 
 func evalArray(a *ast.ArrayLiteral, l int, env *object.Environment) object.Object {

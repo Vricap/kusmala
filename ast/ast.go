@@ -241,7 +241,7 @@ func (s *StringLiteral) Line() int {
 
 type PanjangFungsi struct {
 	Token    token.Token
-	Argument string
+	Argument Expression
 	Ln       int
 }
 
