@@ -31,6 +31,8 @@ const (
 	RPAREN TokenType = ")"
 	LBRACE TokenType = "{"
 	RBRACE TokenType = "}"
+	LBRACKET TokenType = "["
+	RBRACKET TokenType = "]"
 
 	// keyword (reserved word specific to the programming language - non user-defined)
 	FUNGSI     TokenType = "FUNGSI"

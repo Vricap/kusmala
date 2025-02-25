@@ -18,10 +18,10 @@ const (
 	OBJECT_KEMBALIKAN            = "OBJECT_KEMBALIKAN"
 	OBJECT_ERR                   = "ERROR"
 	OBJECT_STRING                = "STRING"
-	OBEJCT_IDENTIFIER            = "IDENTIFIER"
 	OBJECT_FUNGSI                = "FUNGSI"
 	OBJECT_JIKA                  = "JIKA"
 	OBEJCT_BUILTIN               = "BUILTIN"
+	OBJECT_ARRAY                 = "ARRAY"
 )
 
 type Object interface {
@@ -85,7 +85,7 @@ type Kembalikan struct {
 }
 
 func (k *Kembalikan) Inspect() string {
-	return k.Value.Inspect()
+	return "kembalikan " + k.Value.Inspect()
 }
 func (k *Kembalikan) Type() ObjectType {
 	return OBJECT_KEMBALIKAN
@@ -121,21 +121,6 @@ func (s *String) Type() ObjectType {
 }
 func (s *String) Line() int {
 	return s.Ln
-}
-
-type Ident struct {
-	Value Object
-	Ln    int
-}
-
-func (i *Ident) Type() ObjectType {
-	return OBEJCT_IDENTIFIER
-}
-func (i *Ident) Inspect() string {
-	return i.Value.Inspect()
-}
-func (i *Ident) Line() int {
-	return i.Ln
 }
 
 func NewEnv() *Environment {
@@ -202,7 +187,7 @@ func (fl *FungsiLiteral) Inspect() string {
 	for _, p := range fl.Param {
 		params = append(params, p.TokenLiteral())
 	}
-	out.WriteString("fn")
+	out.WriteString("fungsi")
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") {\n")
@@ -220,4 +205,29 @@ func (b *Bawaan) Type() ObjectType {
 }
 func (b *Bawaan) Inspect() string {
 	return "fungsi bawaan"
+}
+
+type Array struct {
+	El []Object
+	Ln int
+}
+
+func (a *Array) Type() ObjectType {
+	return OBJECT_ARRAY
+}
+func (a *Array) Inspect() string {
+	var b bytes.Buffer
+	b.WriteString("[")
+	for i, val := range a.El {
+		b.WriteString(val.Inspect())
+		if i == len(a.El)-1 {
+			break
+		}
+		b.WriteString(", ")
+	}
+	b.WriteString("]")
+	return b.String()
+}
+func (a *Array) Line() int {
+	return a.Ln
 }

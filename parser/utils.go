@@ -43,6 +43,7 @@ func printStatement(s ast.Statement, b *bytes.Buffer, space int) {
 	b.WriteString("\n")
 }
 
+// TODO: panjang builtin function and array is not yet implemented here
 func printExpression(expr ast.Expression, b *bytes.Buffer, space int) {
 	switch expr.(type) {
 	case *ast.Identifier:

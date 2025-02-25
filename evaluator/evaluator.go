@@ -73,6 +73,18 @@ func evalExpression(expr ast.Expression, env *object.Environment) object.Object 
 		return &object.String{Value: e.Value, Ln: e.Ln}
 	case *ast.PanjangFungsi:
 		return evalPanjangFungsi(e, e.Ln)
+	case *ast.ArrayLiteral:
+		return evalArray(e, e.Ln, env)
+	case *ast.IndexExpression:
+		left := evalExpression(e.Left, env)
+		if left.Type() == object.OBJECT_ERR {
+			return left
+		}
+		index := evalExpression(e.Index, env)
+		if index.Type() == object.OBJECT_ERR {
+			return index
+		}
+		return evalIndexExpression(left, index, e.Ln, env)
 	default:
 		return newError("ekspresi tidak diketahui atau tidak ditempatnya", e.TokenLiteral(), e.Line())
 	}
@@ -236,6 +248,19 @@ func extendFuncEnv(f *object.FungsiLiteral, args []object.Object) *object.Enviro
 // TODO: goodluck trying to understand all of this
 var ret_obj object.Object
 
+/*
+TODO: BUG if we have this:
+
+	buat x = fungsi() {
+		kembalikan 2 * 2;
+	}
+
+	buat f = fungsi() {
+		buat a = x(); function will stop and return here because somehow kembalikan statement at x is also triggered in f
+		cetak("helo");
+	}
+*/
+
 func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment) object.Object {
 	var obj object.Object
 
@@ -281,6 +306,56 @@ func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.
 
 func evalPanjangFungsi(e *ast.PanjangFungsi, l int) object.Object {
 	return &object.Integer{Ln: l, Value: len(e.Argument)}
+}
+
+func evalArray(a *ast.ArrayLiteral, l int, env *object.Environment) object.Object {
+	arr := &object.Array{Ln: a.Ln}
+	for _, v := range a.Elements {
+		arr.El = append(arr.El, evalExpression(v, env))
+	}
+	return arr
+}
+
+func evalIndexExpression(left object.Object, index object.Object, l int, env *object.Environment) object.Object {
+	le := evalLeftIndex(left, l)
+	if le.Type() == object.OBJECT_ERR {
+		return le
+	}
+	val := evalIndex(le, index, l)
+	if val.Type() == object.OBJECT_ERR {
+		return val
+	}
+	return val
+}
+
+func evalLeftIndex(left object.Object, l int) object.Object {
+	switch t := left.(type) {
+	case *object.Kembalikan:
+		switch k := t.Value.(type) {
+		case *object.Array:
+			return k
+		default:
+			return newError("struktur data tidak didukung operator index", k.Inspect(), l)
+		}
+	case *object.Array:
+		return t
+	default:
+		return newError("struktur data tidak didukung operator index", left.Inspect(), l)
+	}
+}
+
+func evalIndex(le object.Object, index object.Object, l int) object.Object {
+	i, ok := index.(*object.Integer)
+	if !ok {
+		return newError("argumen index harus sebuah integer", fmt.Sprintf("[%s]", index.Inspect()), l)
+	}
+	arr := le.(*object.Array)
+	if i.Value < 0 {
+		return newError("argumen index tidak boleh negatif", fmt.Sprintf("[%s]", i.Inspect()), l)
+	} else if i.Value > len(arr.El)-1 {
+		return newError("argumen index melebihi panjang array", fmt.Sprintf("[%s]", i.Inspect()), l)
+	}
+	return arr.El[i.Value]
 }
 
 func condIsTrue(cond object.Object) bool {

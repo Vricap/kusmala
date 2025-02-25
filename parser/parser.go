@@ -24,6 +24,7 @@ const (
 	PRODUCT     // *
 	PREFIX      // -X or !X
 	CALL        // myFunction(X)
+	INDEX       // array[]
 )
 
 var precedence map[token.TokenType]int = map[token.TokenType]int{
@@ -36,6 +37,7 @@ var precedence map[token.TokenType]int = map[token.TokenType]int{
 	token.SLASH:      PRODUCT,
 	token.ASTERISK:   PRODUCT,
 	token.LPAREN:     CALL,
+	token.LBRACKET:   INDEX,
 }
 
 type Parser struct {
@@ -72,6 +74,7 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerPrefix(token.FUNGSI, pars.parsFungsiLiteral)
 	pars.registerPrefix(token.PANJANG, pars.parsPanjangFungsi)
 	pars.registerPrefix(token.STRING, pars.parsStringLiteral)
+	pars.registerPrefix(token.LBRACKET, pars.parsArrayLiteral)
 
 	// i decide if-else is a statement and NOT a expression
 	// pars.registerPrefix(token.JIKA, pars.parsJikaExpression)
@@ -89,6 +92,7 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	pars.registerInfix(token.SAMA, pars.parsInfix)
 	pars.registerInfix(token.TIDAK_SAMA, pars.parsInfix)
 	pars.registerInfix(token.LPAREN, pars.parsCallExpression)
+	pars.registerInfix(token.LBRACKET, pars.parsIndexExpression)
 	return pars
 }
 
@@ -175,7 +179,9 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)
-	pars.parsNextToken()
+	if pars.expectPeek(token.SEMICOLON) {
+		pars.parsNextToken()
+	}
 	return statement
 }
 
@@ -468,6 +474,51 @@ func (pars *Parser) parsStringLiteral() ast.Expression {
 		Ln:    pars.lex.Line,
 	}
 	return str
+}
+
+func (pars *Parser) parsArrayLiteral() ast.Expression {
+	arr := &ast.ArrayLiteral{Token: pars.currToken, Ln: pars.lex.Line}
+	pars.parsNextToken()
+	if pars.expectCurr(token.RBRACKET) {
+		return arr
+	}
+	arr.Elements = pars.parsArrElements()
+	return arr
+}
+
+func (pars *Parser) parsIndexExpression(left ast.Expression) ast.Expression {
+	index := &ast.IndexExpression{Token: pars.currToken, Ln: pars.lex.Line, Left: left}
+	pars.parsNextToken()
+	if pars.expectCurr(token.RBRACKET) {
+		return index
+	}
+	index.Index = pars.parsExpression(LOWEST)
+	if !pars.expectPeek(token.RBRACKET) {
+		pars.peekError(token.RBRACKET, pars.lex.Line)
+	}
+	pars.parsNextToken()
+	return index
+}
+
+func (pars *Parser) parsArrElements() []ast.Expression {
+	el := []ast.Expression{}
+
+	for pars.currToken.Type != token.RBRACKET {
+		if pars.currToken.Type == token.COMMA {
+			pars.parsNextToken()
+			continue
+		}
+		if pars.currToken.Type == token.EOF {
+			break
+		}
+		el = append(el, pars.parsExpression(LOWEST))
+		pars.parsNextToken()
+	}
+	// TODO: quick hack
+	if !pars.expectCurr(token.RBRACKET) {
+		pars.currError(token.RBRACKET, pars.lex.Line)
+	}
+	return el
 }
 
 /*******************************************

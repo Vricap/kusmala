@@ -252,3 +252,33 @@ func (pf *PanjangFungsi) expressionNode() {}
 func (pf *PanjangFungsi) Line() int {
 	return pf.Ln
 }
+
+type ArrayLiteral struct {
+	Token    token.Token
+	Elements []Expression
+	// Index    Expression
+	Ln int
+}
+
+func (a *ArrayLiteral) TokenLiteral() string {
+	return a.Token.Literal
+}
+func (a *ArrayLiteral) expressionNode() {}
+func (a *ArrayLiteral) Line() int {
+	return a.Ln
+}
+
+type IndexExpression struct {
+	Token token.Token
+	Left  Expression // could be array literal, or identifier of array literal. maybe later i will add string too
+	Index Expression
+	Ln    int
+}
+
+func (ie *IndexExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+func (ie *IndexExpression) Line() int {
+	return ie.Ln
+}
+func (ie *IndexExpression) expressionNode() {}
