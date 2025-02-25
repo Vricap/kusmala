@@ -70,6 +70,9 @@ func printExpression(expr ast.Expression, b *bytes.Buffer, space int) {
 	case *ast.StringLiteral:
 		s := expr.(*ast.StringLiteral)
 		printStringLiteral(s, b, space)
+	case *ast.PanjangFungsi:
+		p := expr.(*ast.PanjangFungsi)
+		printPanjangFungsi(p, b, space)
 	}
 }
 
@@ -130,6 +133,14 @@ func printIntegerLiteral(i *ast.IntegerLiteral, b *bytes.Buffer, space int) {
 
 func printStringLiteral(s *ast.StringLiteral, b *bytes.Buffer, space int) {
 	b.WriteString(addSpace(space) + "STRING_LITERAL: " + s.Token.Literal + "\n")
+}
+
+func printPanjangFungsi(p *ast.PanjangFungsi, b *bytes.Buffer, space int) {
+	b.WriteString(addSpace(space) + "PANJANG_FUNGSI: \n")
+	space++
+	b.WriteString(addSpace(space) + "ARGUMENTS: \n")
+	space++
+	printExpression(p.Argument, b, space)
 }
 
 func printBooleanLiteral(bl *ast.BooleanLiteral, b *bytes.Buffer, space int) {
