@@ -31,7 +31,7 @@ Lakukan ini jika tidak mempunyai *make*.
 Menjalankan kusmala tanpa argumen akan membuka REPL:  
 ![screenshot 1](./resource/screenshot/1.png)  
 
-Contoh program terdapat dalam direktori ```example/```  
+Beberapa contoh program terdapat dalam direktori ```example/```
 ### Contoh Kode  
 ```
 buat faktorial = fungsi(x) {	// fungsi literal
