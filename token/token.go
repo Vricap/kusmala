@@ -7,9 +7,9 @@ const (
 	ILLEGAL TokenType = "ILLEGAL" // token that didn't define in the language
 	EOF     TokenType = "EOF"
 
-	IDENT  TokenType = "IDENT"  // user-defined. e.g variable name
-	BILBUL TokenType = "BILBUL" // bilangan bulat / int
-	STRING TokenType = "STRING"
+	IDENT   TokenType = "IDENT" // user-defined. e.g variable name
+	INTEGER TokenType = "INTEGER"
+	STRING  TokenType = "STRING"
 
 	// operator
 	ASSIGN     TokenType = "="
@@ -27,10 +27,10 @@ const (
 	COMMA     TokenType = ","
 	SEMICOLON TokenType = ";"
 
-	LPAREN TokenType = "("
-	RPAREN TokenType = ")"
-	LBRACE TokenType = "{"
-	RBRACE TokenType = "}"
+	LPAREN   TokenType = "("
+	RPAREN   TokenType = ")"
+	LBRACE   TokenType = "{"
+	RBRACE   TokenType = "}"
 	LBRACKET TokenType = "["
 	RBRACKET TokenType = "]"
 

@@ -66,7 +66,7 @@ func NewPars(lex *lexer.Lexer) *Parser {
 	// PREFIX EXPRESSION
 	pars.prefixParsMap = map[token.TokenType]prefixParsFunc{} // initialize empty prefixParsMap map
 	pars.registerPrefix(token.IDENT, pars.parsIdent)          // register token type ident with parsIdent function which match prefixParsFunc function type
-	pars.registerPrefix(token.BILBUL, pars.parsIntegerLiteral)
+	pars.registerPrefix(token.INTEGER, pars.parsIntegerLiteral)
 	pars.registerPrefix(token.BANG, pars.parsPrefix)
 	pars.registerPrefix(token.MINUS, pars.parsPrefix)
 	pars.registerPrefix(token.BENAR, pars.parsBooleanLiteral)
@@ -582,19 +582,19 @@ This infix expression: 1-2+3 translate to this:
 type InfinixExpression struct {
 	Token: token.PLUS
 	Right: type IntegerExpression struct {
-		Token: token.BILBUL
+		Token: token.INTEGER
 		Value: 3
 	}
 	Operator: "+"
 	Left: type InfinixExpression struct {
 		Token: token.MINUS
 		Right: type IntegerExpression struct {
-			Token: token.BILBUL
+			Token: token.INTEGER
 			Value: 2
 		}
 		Operator: "-"
 		Left: type IntegerExpression struct {
-			Token: token.BILBUL
+			Token: token.INTEGER
 			Value: 1
 		}
 	}
