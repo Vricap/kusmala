@@ -43,7 +43,6 @@ func printStatement(s ast.Statement, b *bytes.Buffer, space int) {
 	b.WriteString("\n")
 }
 
-// TODO: panjang builtin function and array is not yet implemented here
 func printExpression(expr ast.Expression, b *bytes.Buffer, space int) {
 	switch expr.(type) {
 	case *ast.Identifier:
@@ -70,6 +69,9 @@ func printExpression(expr ast.Expression, b *bytes.Buffer, space int) {
 	case *ast.StringLiteral:
 		s := expr.(*ast.StringLiteral)
 		printStringLiteral(s, b, space)
+	case *ast.ArrayLiteral:
+		a := expr.(*ast.ArrayLiteral)
+		printArrayLiteral(a, b, space)
 	case *ast.PanjangFungsi:
 		p := expr.(*ast.PanjangFungsi)
 		printPanjangFungsi(p, b, space)
@@ -133,6 +135,16 @@ func printIntegerLiteral(i *ast.IntegerLiteral, b *bytes.Buffer, space int) {
 
 func printStringLiteral(s *ast.StringLiteral, b *bytes.Buffer, space int) {
 	b.WriteString(addSpace(space) + "STRING_LITERAL: " + s.Token.Literal + "\n")
+}
+
+func printArrayLiteral(a *ast.ArrayLiteral, b *bytes.Buffer, space int) {
+	b.WriteString(addSpace(space) + "ARRAY_LITERAL: \n")
+	space++
+	b.WriteString(addSpace(space) + "ELEMENTS: \n")
+	space++
+	for _, v := range a.Elements {
+		printExpression(v, b, space)
+	}
 }
 
 func printPanjangFungsi(p *ast.PanjangFungsi, b *bytes.Buffer, space int) {
