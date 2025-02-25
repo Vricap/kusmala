@@ -1,0 +1,8 @@
+buat array = [1, "helo", benar, 1 + 2];
+cetak(array[1]);
+
+buat f = fungsi() {
+	kembalikan [1, "helo", benar, 1 + 2];
+}
+
+cetak(f()[0 + 1]);
