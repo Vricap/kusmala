@@ -60,6 +60,19 @@ func (bs *BuatStatement) TokenLiteral() string {
 func (bs *BuatStatement) statementNode() {}
 func (bs *BuatStatement) Line() int      { return bs.Ln }
 
+type ReassignStatement struct {
+	Token    token.Token
+	Ident    *Identifier
+	NewValue Expression
+	Ln       int
+}
+
+func (rs *ReassignStatement) TokenLiteral() string {
+	return rs.Token.Literal
+}
+func (rs *ReassignStatement) statementNode() {}
+func (rs *ReassignStatement) Line() int      { return rs.Ln }
+
 type KembalikanStatement struct {
 	Token      token.Token
 	Expression Expression // the value expression that will be returned

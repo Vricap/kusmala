@@ -38,6 +38,9 @@ func printStatement(s ast.Statement, b *bytes.Buffer, space int) {
 	case *ast.CetakStatement:
 		c := s.(*ast.CetakStatement)
 		printCetakStatement(c, b, space)
+	case *ast.ReassignStatement:
+		r := s.(*ast.ReassignStatement)
+		printReassignStatement(r, b, space)
 	}
 	space = 1
 	b.WriteString("\n")
@@ -207,6 +210,15 @@ func printCetakStatement(c *ast.CetakStatement, b *bytes.Buffer, space int) {
 	b.WriteString(addSpace(space) + "EXPRESSION: \n")
 	space++
 	printArguments(c.Expression, b, space)
+}
+
+func printReassignStatement(r *ast.ReassignStatement, b *bytes.Buffer, space int) {
+	b.WriteString(addSpace(space) + "REASSIGN_STATEMENT: \n")
+	space++
+	printIdent(r.Ident, b, space)
+	b.WriteString(addSpace(space) + "NEW_VALUE: \n")
+	space++
+	printExpression(r.NewValue, b, space)
 }
 
 func addSpace(r int) string {

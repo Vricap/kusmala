@@ -124,6 +124,9 @@ func (pars *Parser) parsStatement() ast.Statement {
 		return pars.parsJikaStatement()
 	case token.CETAK:
 		return pars.parsCetakStatement()
+	case token.IDENT:
+		// TODO: find more about this
+		return pars.parsReassignmentStatement()
 	default:
 		// since the real statement in the language in only 2 (buat & kembalikan), then other statement must be expression statement
 		return pars.parsExpressionStatement()
@@ -158,7 +161,6 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)
-	// pars.parsNextToken()
 
 	// TODO: find out more about this
 	if pars.peekToken.Type == token.SEMICOLON {
@@ -263,6 +265,21 @@ func (pars *Parser) parsCetakStatement() *ast.CetakStatement {
 		pars.parsNextToken()
 	}
 	return cetak
+}
+
+func (pars *Parser) parsReassignmentStatement() *ast.ReassignStatement {
+	rs := &ast.ReassignStatement{Token: pars.currToken, Ln: pars.lex.Line}
+	rs.Ident = &ast.Identifier{Token: pars.currToken, Ln: pars.lex.Line, Value: pars.currToken.Literal}
+	if !pars.expectPeek(token.ASSIGN) {
+		pars.peekError(token.ASSIGN, pars.lex.Line)
+	}
+	pars.parsNextToken()
+	pars.parsNextToken()
+	rs.NewValue = pars.parsExpression(LOWEST)
+	if pars.expectPeek(token.SEMICOLON) {
+		pars.parsNextToken()
+	}
+	return rs
 }
 
 /*******************************************

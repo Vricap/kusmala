@@ -38,6 +38,8 @@ func evalStatement(stmt ast.Statement, env *object.Environment) object.Object {
 		return evalExpression(s.Expression, env)
 	case *ast.CetakStatement:
 		return evalCetakStatement(s, env)
+	case *ast.ReassignStatement:
+		return evalReassignStatement(s, env, s.Ln)
 	// TODO: kembalikan statement isn't allowed in global scope. only inside a block statement
 	// case *ast.KembalikanStatement:
 	// 	return evalKembalikanStatement(s)
@@ -302,6 +304,19 @@ func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.
 	fmt.Print("\n")
 	// only return the last expression
 	return obj
+}
+
+func evalReassignStatement(rs *ast.ReassignStatement, env *object.Environment, l int) object.Object {
+	_, ok := env.Get(rs.Ident.Value)
+	if !ok {
+		return newError("pengenal tidak diketahui", rs.Ident.TokenLiteral(), l)
+	}
+	expr := evalExpression(rs.NewValue, env)
+	if expr.Type() == object.OBJECT_ERR {
+		return expr
+	}
+	env.Set(rs.Ident.Value, expr)
+	return &object.Nil{}
 }
 
 func evalPanjangFungsi(e *ast.PanjangFungsi, l int, env *object.Environment) object.Object {
