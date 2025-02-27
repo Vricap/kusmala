@@ -193,13 +193,13 @@ func evalIdentifier(i *ast.Identifier, env *object.Environment) object.Object {
 	return val
 }
 
-// TODO: the environment in jika statement doesn't have idea about global scope or block scope.
 func evalJikaStatement(jk *ast.JikaStatement, env *object.Environment) object.Object {
 	cond := evalExpression(jk.Condition, env)
+	newChildEnv := object.NewChildEnv(env)
 	if condIsTrue(cond) {
-		return evalBlockStatement(jk.JikaBlock, env)
+		return evalBlockStatement(jk.JikaBlock, newChildEnv)
 	} else if jk.LainnyaBlock != nil {
-		return evalBlockStatement(jk.LainnyaBlock, env)
+		return evalBlockStatement(jk.LainnyaBlock, newChildEnv)
 	} else {
 		return &object.Nil{}
 	}
@@ -221,6 +221,7 @@ func evalArguments(a []ast.Expression, env *object.Environment) []object.Object 
 	return obj
 }
 
+// TODO: i honestly doesn't know how all of this work
 func runFunction(fn object.Object, e *ast.CallExpression, env *object.Environment) object.Object {
 	args := evalArguments(e.Arguments, env)
 	if len(args) == 1 && args[0].Type() == object.OBJECT_ERR { // if there's error
@@ -307,16 +308,36 @@ func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.
 }
 
 func evalReassignStatement(rs *ast.ReassignStatement, env *object.Environment, l int) object.Object {
-	_, ok := env.Get(rs.Ident.Value)
-	if !ok {
-		return newError("pengenal tidak diketahui", rs.Ident.TokenLiteral(), l)
-	}
 	expr := evalExpression(rs.NewValue, env)
 	if expr.Type() == object.OBJECT_ERR {
 		return expr
 	}
+	_, ok := env.Get(rs.Ident.Value)
+	if !ok {
+		return newError("pengenal tidak diketahui", rs.Ident.TokenLiteral(), l)
+	}
+	traverseEnv(rs.Ident.Value, env, expr)
 	env.Set(rs.Ident.Value, expr)
 	return &object.Nil{}
+
+}
+
+// TODO: find out more about this
+func traverseEnv(name string, env *object.Environment, expr object.Object) {
+	if env == nil {
+		return
+	}
+	_, ok := env.Get(name) // we traverse the env and change every value we found
+	if ok {
+		env.Set(name, expr)
+		if env.Master != nil {
+			if _, ok := env.Master.Get(name); !ok {
+				return
+			}
+
+		}
+	}
+	traverseEnv(name, env.Master, expr)
 }
 
 func evalPanjangFungsi(e *ast.PanjangFungsi, l int, env *object.Environment) object.Object {

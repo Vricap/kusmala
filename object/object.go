@@ -122,26 +122,26 @@ func (s *String) Line() int {
 	return s.Ln
 }
 
+type Environment struct {
+	store  map[string]Object
+	Master *Environment // the master Environment of this Environment if any
+}
+
 func NewEnv() *Environment {
 	s := map[string]Object{}
 	return &Environment{store: s}
 }
 
-type Environment struct {
-	store  map[string]Object
-	master *Environment // the master Environment of this Environment if any
-}
-
 func NewChildEnv(master *Environment) *Environment {
 	child := NewEnv()
-	child.master = master
+	child.Master = master
 	return child
 }
 
 func (e *Environment) Get(name string) (Object, bool) {
 	obj, ok := e.store[name]
-	if e.master != nil && !ok { // if the ident if not exist in this env AND this env have master, we will return the master one.
-		obj, ok := e.master.store[name]
+	if e.Master != nil && !ok { // if the ident if not exist in this env AND this env have master, we will return the master one.
+		obj, ok := e.Master.store[name]
 		return obj, ok
 	}
 	return obj, ok
@@ -149,21 +149,6 @@ func (e *Environment) Get(name string) (Object, bool) {
 func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
-}
-
-type JikaStatement struct {
-	Env *Environment
-	Ln  int
-}
-
-func (js *JikaStatement) Line() int {
-	return js.Ln
-}
-func (js *JikaStatement) Type() ObjectType {
-	return OBJECT_JIKA
-}
-func (js *JikaStatement) Inspect() string {
-	return "jika"
 }
 
 type FungsiLiteral struct {
