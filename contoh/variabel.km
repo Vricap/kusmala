@@ -1,5 +1,9 @@
+// deklarasi sebuah variabel
 buat unary = -1;
 buat binary = unary * 10;
 buat kombinasi = 4 + unary * binary
+
+// reassign sebuah variabel
+unary = -2;
 
 cetak(unary, binary, kombinasi);

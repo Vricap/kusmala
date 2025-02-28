@@ -1,0 +1,13 @@
+-1; 		// negatif
+!salah; 	// negasi
+
+1 + 2; 		// penjumlahan
+2 - 1;		// pengurangan
+2 * 2;		// perkalian
+2 / 2;		// pembagian
+
+// komparasi
+1 == 1;		// sama dengan
+1 != 2;		// tidak sama dengan
+1 < 2;		// kurang dari
+2 > 1;		// besar dari

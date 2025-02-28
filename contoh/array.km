@@ -6,4 +6,5 @@ buat f = fungsi() {
 }
 
 cetak(f()[0 + 1]);
+// gunakan fungsi bawaan 'panjang()' untuk melihat panjang array
 cetak(array[panjang(array) - 1]); // elemen terakhir

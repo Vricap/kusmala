@@ -1,0 +1,10 @@
+1; // integer
+
+"Halo Dunia"; // string
+
+benar;
+salah; // boolean
+
+[1, "Halo Dunia", benar, f(), [1, 2]]; // array
+
+// gunakan fungsi bawaan 'panjang()' untuk melihat panjang string atau array
