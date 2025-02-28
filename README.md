@@ -31,7 +31,7 @@ Lakukan ini jika tidak mempunyai *make*.
 Menjalankan kusmala tanpa argumen akan membuka REPL:  
 ![screenshot 1](./resource/screenshot/1.png)  
 
-Beberapa contoh program terdapat dalam direktori ```example/```
+Beberapa contoh program terdapat dalam direktori ```contoh/```
 ### Contoh Kode  
 ```
 buat faktorial = fungsi(x) {	// fungsi literal
@@ -48,14 +48,14 @@ cetak("Hasil dari faktorial", nilai, "adalah", hasil); // cetak akan mengeluarka
 
 Menjalankan kode dari file:  
 ```
-$ ./bin/kusmala ./example/faktorial.km  
+$ ./bin/kusmala ./contoh/faktorial.km  
 Hasil dari faktorial 5 adalah 120
 ```  
 Tempatkan lokasi file pada argumen ke dua.  
 
 Gunakan argumen `-tree` untuk mencetak pohon AST dari kode:  
 ```
-$ ./bin/kusmala ./example/faktorial.km -tree  
+$ ./bin/kusmala ./contoh/faktorial.km -tree  
 AST_TREE:
   BUAT_STATEMENT:
     IDENT: faktorial
