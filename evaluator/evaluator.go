@@ -30,6 +30,9 @@ func evalStatement(stmt ast.Statement, env *object.Environment) object.Object {
 		return evalJikaStatement(s, env)
 	case *ast.ExpressionStatement:
 		return evalExpression(s.Expression, env)
+	case *ast.BlockStatement:
+		var ret_obj object.Object
+		return evalBlockStatement(s, env, ret_obj)
 	case *ast.CetakStatement:
 		return evalCetakStatement(s, env)
 	case *ast.ReassignStatement:
@@ -191,9 +194,9 @@ func evalJikaStatement(jk *ast.JikaStatement, env *object.Environment) object.Ob
 	cond := evalExpression(jk.Condition, env)
 	// newChildEnv := object.NewChildEnv(env) // TODO: this fuck recursive function
 	if condIsTrue(cond) {
-		return evalBlockStatement(jk.JikaBlock, env)
+		return evalStatement(jk.JikaBlock, env)
 	} else if jk.LainnyaBlock != nil {
-		return evalBlockStatement(jk.LainnyaBlock, env)
+		return evalStatement(jk.LainnyaBlock, env)
 	} else {
 		return &object.Nil{}
 	}
@@ -230,7 +233,7 @@ func runFunction(fn object.Object, e *ast.CallExpression, env *object.Environmen
 		return newError(s, e.TokenLiteral(), e.Line())
 	}
 	childEnv := extendFuncEnv(f, args)
-	eval := evalBlockStatement(f.Body, childEnv)
+	eval := evalStatement(f.Body, childEnv)
 	return eval
 }
 
@@ -243,7 +246,7 @@ func extendFuncEnv(f *object.FungsiLiteral, args []object.Object) *object.Enviro
 }
 
 // TODO: goodluck trying to understand all of this
-var ret_obj object.Object
+// var ret_obj object.Object
 
 /*
 TODO: BUG if we have this:
@@ -258,7 +261,7 @@ TODO: BUG if we have this:
 	}
 */
 
-func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment) object.Object {
+func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment, ret_obj object.Object) object.Object {
 	var obj object.Object
 
 	for _, s := range bs.Statements {
