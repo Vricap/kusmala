@@ -4,7 +4,7 @@ buat fib = fungsi(a, b, limit) {
 		kembalikan a;
 	} lainnya {
 		cetak(a, " ");
-		kembalikan fib(b, a + b, limit);
+		fib(b, a + b, limit);
 	}
 }
 
