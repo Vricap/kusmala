@@ -158,7 +158,7 @@ func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
 
 	_, ok := pars.prefixParsMap[pars.peekToken.Type]
 	if !ok {
-		pars.Errors = append(pars.Errors, fmt.Sprintf("Mengharapkan Nilai atau Ekspresi, tetapi mendapatkan '%s'.", pars.peekToken.Literal))
+		pars.Errors = append(pars.Errors, fmt.Sprintf("ERROR di baris %d: \n\tMengharapkan Nilai atau Ekspresi, tetapi mendapatkan '%s'.", pars.lex.Line, pars.peekToken.Literal))
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)
@@ -175,10 +175,13 @@ func (pars *Parser) parsKembalikanStatement() *ast.KembalikanStatement {
 		Token: pars.currToken,
 		Ln:    pars.lex.Line,
 	}
-
+	if pars.expectPeek(token.SEMICOLON) {
+		pars.parsNextToken()
+		return statement
+	}
 	_, ok := pars.prefixParsMap[pars.peekToken.Type]
 	if !ok {
-		pars.Errors = append(pars.Errors, fmt.Sprintf("Mengharapkan Nilai atau Ekspresi, tetapi mendapatkan %s.", pars.peekToken.Literal))
+		pars.Errors = append(pars.Errors, fmt.Sprintf("ERROR di baris %d: \n\tMengharapkan Nilai atau Ekspresi, tetapi mendapatkan %s.", pars.lex.Line, pars.peekToken.Literal))
 	}
 	pars.parsNextToken()
 	statement.Expression = pars.parsExpression(LOWEST)

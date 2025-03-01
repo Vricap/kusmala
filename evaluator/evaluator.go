@@ -288,7 +288,10 @@ func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment) object.
 }
 
 func evalKembalikanStatement(ks *ast.KembalikanStatement, env *object.Environment) object.Object {
-	return &object.Kembalikan{Value: evalExpression(ks.Expression, env), Ln: ks.Line()}
+	if ks.Expression != nil {
+		return &object.Kembalikan{Value: evalExpression(ks.Expression, env), Ln: ks.Line()}
+	}
+	return &object.Kembalikan{Value: &object.Nil{}, Ln: ks.Line()}
 }
 
 func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.Object {
