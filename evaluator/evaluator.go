@@ -11,10 +11,6 @@ func Eval(tree *ast.Tree, env *object.Environment) []object.Object {
 	var evals []object.Object
 	for _, s := range tree.Statements {
 		eval := evalStatement(s, env)
-		if ks, ok := eval.(*object.Kembalikan); ok {
-			eval = ks.Value
-			ret_obj = nil
-		}
 		if err, ok := eval.(*object.Error); ok {
 			fmt.Println("\t", err.Inspect())
 			break // TODO: remove this when running test case
@@ -32,8 +28,6 @@ func evalStatement(stmt ast.Statement, env *object.Environment) object.Object {
 		return val
 	case *ast.JikaStatement:
 		return evalJikaStatement(s, env)
-	case *ast.BlockStatement: // TODO: this problably shouldn't be here
-		return evalBlockStatement(s, env)
 	case *ast.ExpressionStatement:
 		return evalExpression(s.Expression, env)
 	case *ast.CetakStatement:
@@ -195,11 +189,11 @@ func evalIdentifier(i *ast.Identifier, env *object.Environment) object.Object {
 
 func evalJikaStatement(jk *ast.JikaStatement, env *object.Environment) object.Object {
 	cond := evalExpression(jk.Condition, env)
-	newChildEnv := object.NewChildEnv(env)
+	// newChildEnv := object.NewChildEnv(env) // TODO: this fuck recursive function
 	if condIsTrue(cond) {
-		return evalBlockStatement(jk.JikaBlock, newChildEnv)
+		return evalBlockStatement(jk.JikaBlock, env)
 	} else if jk.LainnyaBlock != nil {
-		return evalBlockStatement(jk.LainnyaBlock, newChildEnv)
+		return evalBlockStatement(jk.LainnyaBlock, env)
 	} else {
 		return &object.Nil{}
 	}
@@ -236,7 +230,7 @@ func runFunction(fn object.Object, e *ast.CallExpression, env *object.Environmen
 		return newError(s, e.TokenLiteral(), e.Line())
 	}
 	childEnv := extendFuncEnv(f, args)
-	eval := evalStatement(f.Body, childEnv)
+	eval := evalBlockStatement(f.Body, childEnv)
 	return eval
 }
 
@@ -289,9 +283,11 @@ func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment) object.
 
 func evalKembalikanStatement(ks *ast.KembalikanStatement, env *object.Environment) object.Object {
 	if ks.Expression != nil {
-		return &object.Kembalikan{Value: evalExpression(ks.Expression, env), Ln: ks.Line()}
+		// return &object.Kembalikan{Value: evalExpression(ks.Expression, env), Ln: ks.Line()}
+		return evalExpression(ks.Expression, env)
 	}
-	return &object.Kembalikan{Value: &object.Nil{}, Ln: ks.Line()}
+	// return &object.Kembalikan{Value: &object.Nil{}, Ln: ks.Line()}
+	return &object.Nil{}
 }
 
 func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.Object {
@@ -322,7 +318,6 @@ func evalReassignStatement(rs *ast.ReassignStatement, env *object.Environment, l
 	traverseEnv(rs.Ident.Value, env, expr)
 	env.Set(rs.Ident.Value, expr)
 	return &object.Nil{}
-
 }
 
 // TODO: find out more about this

@@ -126,12 +126,14 @@ func (pars *Parser) parsStatement() ast.Statement {
 		return pars.parsCetakStatement()
 	case token.IDENT:
 		// TODO: find out more about this
-		if !pars.expectPeek(token.LPAREN) { // only run if it is not function call
+		if pars.expectPeek(token.ASSIGN) { // only run if it is not function call
 			return pars.parsReassignmentStatement()
 		}
+		return pars.parsExpressionStatement()
+	default:
+		// since the real statement in the language in only 2 (buat & kembalikan), then other statement must be expression statement
+		return pars.parsExpressionStatement()
 	}
-	// since the real statement in the language in only 2 (buat & kembalikan), then other statement must be expression statement
-	return pars.parsExpressionStatement()
 }
 
 func (pars *Parser) parsBuatStatement() *ast.BuatStatement {
