@@ -4,11 +4,13 @@ jika (10 > 1) {
 			kembalikan 10;
 		} lainnya {
 			cetak("Halo Dunia!");
-			kembalikan 4;
+			kembalikan 4; // stop di sini
 		}
 	}
+	cetak("Halo Dunia!");
 	jika (1 < 10) {
 		2;
+		cetak("Halo Dunia!");
 		kembalikan 3;
 	}
 	129;

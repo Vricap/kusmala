@@ -2,9 +2,9 @@
 buat fib = fungsi(a, b, limit) {
 	jika(a > limit) {
 		kembalikan a;
-	} lainnya {	
+	} lainnya {
 		cetak(a, " ");
-		fib(b, a + b, limit);
+		kembalikan fib(b, a + b, limit);
 	}
 }
 
