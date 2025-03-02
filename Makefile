@@ -2,6 +2,12 @@ build:
 	go build -o ./bin/kusmala .
 	# ./bin/kusmala
 
+build_linux_64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/kusmala . # static linked binary for linux 64
+
+build_win_64:
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./bin/kusmala.exe . # static linked binary for windows 64
+
 run:
 	go run main.go
 
