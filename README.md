@@ -8,7 +8,12 @@ en:
 A interpreted programming language with emphasis on Indonesian language. Written in Go.  
 
 ## Pemasangan  
+Terdapat dua cara untuk mendapatkan binary kusmala. Pertama adalah:  
+### Unduh binary  
+Kamu dapat mengunduh berkas jadi binary dari [releases](https://github.com/Vricap/kusmala/releases). Pastikan binary yang diunduh sesuai dengan sistem operasi dan arsitektur komputermu.  
+
 ### Build from source  
+Cara kedua adalah dengan mengkompilasi sendiri.  
 Clone repo ini:
 ```
 $ git clone https://github.com/Vricap/kusmala.git  
