@@ -15,6 +15,10 @@ func Eval(tree *ast.Tree, env *object.Environment) []object.Object {
 			fmt.Println("\t", err.Inspect())
 			break // TODO: remove this when running test case
 		}
+		if v, ok := eval.(*object.Kembalikan); ok {
+			evals = append(evals, v.Value)
+			continue
+		}
 		evals = append(evals, eval)
 	}
 	return evals
@@ -31,15 +35,13 @@ func evalStatement(stmt ast.Statement, env *object.Environment) object.Object {
 	case *ast.ExpressionStatement:
 		return evalExpression(s.Expression, env)
 	case *ast.BlockStatement:
-		var ret_obj object.Object
-		return evalBlockStatement(s, env, ret_obj)
+		return evalBlockStatement(s, env)
 	case *ast.CetakStatement:
 		return evalCetakStatement(s, env)
 	case *ast.ReassignStatement:
 		return evalReassignStatement(s, env, s.Ln)
-	// TODO: kembalikan statement isn't allowed in global scope. only inside a block statement
-	// case *ast.KembalikanStatement:
-	// 	return evalKembalikanStatement(s)
+	case *ast.KembalikanStatement:
+		return evalKembalikanStatement(s, env)
 	default:
 		return newError("statement tidak diketahui atau tidak ditempatnya", s.TokenLiteral(), s.Line())
 	}
@@ -234,6 +236,9 @@ func runFunction(fn object.Object, e *ast.CallExpression, env *object.Environmen
 	}
 	childEnv := extendFuncEnv(f, args)
 	eval := evalStatement(f.Body, childEnv)
+	if v, ok := eval.(*object.Kembalikan); ok {
+		eval = v.Value
+	}
 	return eval
 }
 
@@ -246,35 +251,14 @@ func extendFuncEnv(f *object.FungsiLiteral, args []object.Object) *object.Enviro
 }
 
 // TODO: goodluck trying to understand all of this
-// var ret_obj object.Object
 
-/*
-TODO: BUG if we have this:
-
-	buat x = fungsi() {
-		kembalikan 2 * 2;
-	}
-
-	buat f = fungsi() {
-		buat a = x(); function will stop and return here because somehow kembalikan statement at x is also triggered in f
-		cetak("helo");
-	}
-*/
-
-func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment, ret_obj object.Object) object.Object {
+func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment) object.Object {
 	var obj object.Object
-
 	for _, s := range bs.Statements {
-		if ks, ok := s.(*ast.KembalikanStatement); ok {
-			if ret_obj == nil {
-				ret_obj = evalKembalikanStatement(ks, env)
-				return ret_obj
-			}
-		}
-		if ret_obj != nil {
-			return ret_obj
-		}
 		obj = evalStatement(s, env)
+		if v, ok := obj.(*object.Kembalikan); ok {
+			return v
+		}
 		if err, ok := obj.(*object.Error); ok {
 			fmt.Println("\t", err.Inspect())
 			continue // so that all error from the blocks from parent to all its child is outputted. change to break to negate
@@ -286,11 +270,9 @@ func evalBlockStatement(bs *ast.BlockStatement, env *object.Environment, ret_obj
 
 func evalKembalikanStatement(ks *ast.KembalikanStatement, env *object.Environment) object.Object {
 	if ks.Expression != nil {
-		// return &object.Kembalikan{Value: evalExpression(ks.Expression, env), Ln: ks.Line()}
-		return evalExpression(ks.Expression, env)
+		return &object.Kembalikan{Value: evalExpression(ks.Expression, env), Ln: ks.Line()}
 	}
-	// return &object.Kembalikan{Value: &object.Nil{}, Ln: ks.Line()}
-	return &object.Nil{}
+	return &object.Kembalikan{Value: &object.Nil{}, Ln: ks.Line()}
 }
 
 func evalCetakStatement(cs *ast.CetakStatement, env *object.Environment) object.Object {
