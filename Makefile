@@ -16,6 +16,7 @@ mod:
 	./bin/kusmala 1.km
 	./bin/kusmala 2.km
 	./bin/kusmala 3.km
+	./bin/kusmala 4.km
 	./bin/kusmala ./contoh/faktorial.km
 	./bin/kusmala ./contoh/fibonacci.km
 	./bin/kusmala ./contoh/kompleks_jika.km
