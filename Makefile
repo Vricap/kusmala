@@ -3,13 +3,18 @@ build:
 	# ./bin/kusmala
 
 build_linux_64:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/kusmala . # static linked binary for linux 64
+	# static linked binary for linux 64
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/kusmala_linux_amd64 .
 
 build_win_64:
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./bin/kusmala.exe . # static linked binary for windows 64
+	# static linked binary for windows 64
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./bin/kusmala_windows_amd64.exe .
 
 run:
 	go run main.go
+
+install:
+	go install .
 
 test:
 	go test ./lexer
