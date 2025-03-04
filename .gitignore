@@ -1,5 +1,6 @@
 timestamp.txt
 notes.txt
 bin/kusmala
+bin/kusmala_linux_amd64
+bin/kusmala_windows_amd64.exe
 /*.km
-bin/kusmala.exe
