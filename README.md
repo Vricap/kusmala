@@ -28,7 +28,7 @@ Pastikan dalam komputer mu sudah terpasang [make](https://www.gnu.org/software/m
 
 Alternatif tanpa *make*:  
 ```
-$ go build -o ./bin/ .
+$ go build -o ./bin/kusmala main.go
 ```  
 Lakukan ini jika tidak mempunyai *make*.  
 
