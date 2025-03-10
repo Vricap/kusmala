@@ -1,0 +1,38 @@
+// TODO: belum selesai. bug di cetakRuang
+
+buat cetakRuang = fungsi(n, ruang) {
+	jika(n < 2) {
+		cetak(ruang);
+		kembalikan;
+	}
+	ruang = ruang + " ";
+	cetakRuang(n - 1, ruang);
+}
+
+buat cetakBintang = fungsi(n, bintang) {
+	jika(n < 2) {
+		cetak(bintang);
+		kembalikan;
+	}
+	bintang = bintang + "*";
+	cetakBintang(n - 1, bintang);
+}
+
+buat cetakBarisPiramida = fungsi(baris, totalBaris) {
+	jika(baris > totalBaris) {
+		kembalikan;
+	}
+	// cetak ruang
+	buat ruang = " ";
+	cetakRuang(totalBaris - baris, ruang);
+	
+	// cetak bintang
+	buat bintang = "*";
+	cetakBintang(2 * baris - 1, bintang);
+
+	// rekursif 
+	cetakBarisPiramida(baris + 1, barisTotal);
+}
+
+buat barisTotal = 5;
+cetakBarisPiramida(1, barisTotal);
