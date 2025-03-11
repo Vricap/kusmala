@@ -42,8 +42,9 @@ Beberapa contoh program terdapat dalam direktori ```contoh/```
 buat faktorial = fungsi(x) {	// fungsi literal
 	jika(x == 1) {		// kondisional
 		kembalikan 1;
+	} lainnya {
+		kembalikan x * faktorial(x - 1); // rekursif
 	}
-	kembalikan x * faktorial(x - 1); // rekursif
 }
 
 buat nilai = 5;
