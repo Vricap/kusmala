@@ -3,9 +3,17 @@
 id:  
 Sebuah bahasa pemrograman interpretasi dengan penegasan pada Bahasa Indonesia. Ditulis dalam Go.  
 
-
 en:  
 A interpreted programming language with emphasis on Indonesian language. Written in Go.  
+
+--TURING COMPLETE--  
+
+## Fitur  
+Tipe data tersedia: string, integer, boolean  
+Struktur Data tersedia: array  
+Conditional  
+Fungsi sebagai high-order functions dan first-class functions  
+Pesan error dengan nomor baris  
 
 ## Pemasangan  
 Terdapat dua cara untuk mendapatkan binary kusmala. Pertama adalah:  
