@@ -9,7 +9,7 @@ A interpreted programming language with emphasis on Indonesian language. Written
 --TURING COMPLETE--  
 
 **DEMO:**  
-[![Watch the video](https://img.youtube.com/vi/3Bi_v5VWL5M/0.jpg)](https://www.youtube.com/watch?v=3Bi_v5VWL5M&t=128s)  
+[![Kusmala Demo](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D3Bi_v5VWL5M%26t%3D128s)](https://www.youtube.com/watch?v=3Bi_v5VWL5M&t=128s)  
 
 ## Fitur  
 Tipe data tersedia: string, integer, boolean  
