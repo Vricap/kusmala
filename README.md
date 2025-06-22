@@ -8,6 +8,9 @@ A interpreted programming language with emphasis on Indonesian language. Written
 
 --TURING COMPLETE--  
 
+**DEMO:**  
+[![Watch the video](https://img.youtube.com/vi/3Bi_v5VWL5M/0.jpg)](https://www.youtube.com/watch?v=3Bi_v5VWL5M&t=128s)  
+
 ## Fitur  
 Tipe data tersedia: string, integer, boolean  
 Struktur Data tersedia: array  
