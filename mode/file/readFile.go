@@ -13,18 +13,25 @@ import (
 )
 
 func Read(arg []string, DEV_MODE bool) {
-	tree := readFile(arg[1], DEV_MODE)
-	env := object.NewEnv()
-	evals := evaluator.Eval(tree, env)
-	if evals != nil {
-		// printEval(evals)
-	}
-	if len(arg) > 2 {
-		switch arg[2] {
-		case "-tree":
-			parser.PrintTree(tree.Statements)
-		default:
-			log.Fatal("Argumen tidak diketahui!")
+	if arg[1] == "-text" { // for kusmala playground
+		if len(arg) < 3 {
+			log.Fatal("Mengharapkan kode progam.")
+		}
+		runText(arg[2], false)
+	} else {
+		tree := readFile(arg[1], DEV_MODE)
+		env := object.NewEnv()
+		evals := evaluator.Eval(tree, env)
+		if evals != nil {
+			// printEval(evals)
+		}
+		if len(arg) > 2 {
+			switch arg[2] {
+			case "-tree":
+				parser.PrintTree(tree.Statements)
+			default:
+				log.Fatal("Argumen tidak diketahui!")
+			}
 		}
 	}
 }
@@ -74,4 +81,19 @@ func printEval(evals []object.Object) {
 	for _, eval := range evals {
 		fmt.Printf("%s\n", eval.Inspect())
 	}
+}
+
+func runText(text string, DEV_MODE bool) {
+	lex := lexer.NewLex(string(text))
+	pars := parser.NewPars(lex)
+	tree := pars.ConstructTree()
+	if len(pars.DevErrors) != 0 && DEV_MODE {
+		printDevError(pars.DevErrors)
+	}
+	if len(pars.Errors) != 0 {
+		printParsingError(pars.Errors)
+	}
+
+	env := object.NewEnv()
+	evaluator.Eval(tree, env)
 }
