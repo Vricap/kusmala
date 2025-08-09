@@ -6,10 +6,10 @@ Sebuah bahasa pemrograman interpretasi dengan penegasan pada Bahasa Indonesia. D
 en:  
 A interpreted programming language with emphasis on Indonesian language. Written in Go.  
 
-Playground for [kusmala](https://github.com/Vricap/kusmala-playground)  
-![](./resource/gif/2025-08-0807-27-11-ezgif.com-video-to-gif-converter.gif)  
-
 --TURING COMPLETE--  
+
+[Playground](https://github.com/Vricap/kusmala-playground) for kusmala  
+![](./resource/gif/2025-08-0807-27-11-ezgif.com-video-to-gif-converter.gif)  
 
 **DEMO:**  
 [![Kusmala Demo](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D3Bi_v5VWL5M)](https://www.youtube.com/watch?v=3Bi_v5VWL5M)  
